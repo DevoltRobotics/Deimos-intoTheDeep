@@ -14,11 +14,12 @@ public class Teleop extends OpMode {
     Hardware hardware;
     int targetposition;
     int targetpositionext;
+    boolean modo = false;
 
 
     @Override
     public void init() {
-        mecanumDrive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+        mecanumDrive = new PinpointDrive(hardwareMap, new Pose2d(0,0,0));
 
         hardware = new Hardware();
         hardware.init(hardwareMap);
@@ -27,18 +28,22 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
 
+        if (gamepad2.left_trigger == 1 && gamepad2.right_trigger == 1){
+            modo = true;
+        }
+
         if (Math.abs(gamepad2.left_stick_y) >= 0.1) {
             targetposition -= (gamepad2.left_stick_y) * 45 ;
         } else {
             if (gamepad2.dpad_up) {
-                targetposition = 1400;
+                targetposition = 1400*3;
             } else if (gamepad2.dpad_down) {
                 targetposition = 0;
             }
         }
 
         if (Math.abs(gamepad2.right_stick_y) >= 0.1) {
-            targetpositionext += (gamepad2.right_stick_y) * 45;
+            targetpositionext += (int) ((gamepad2.right_stick_y) * 45);
         } else {
             if (gamepad2.dpad_right) {
                 targetpositionext = 700;
@@ -47,7 +52,6 @@ public class Teleop extends OpMode {
             }
         }
 
-        hardware.Extend(1,targetpositionext);
 
         double trigger = gamepad1.left_trigger;
 
@@ -72,6 +76,7 @@ public class Teleop extends OpMode {
 
         telemetry.addData("elevador",targetposition);
         telemetry.addData("extendo",targetpositionext);
+        telemetry.addData("brazo pos", hardware.GH2.getCurrentPosition());
 
         if(gamepad2.a){
             hardware.shupar();
@@ -81,6 +86,13 @@ public class Teleop extends OpMode {
          hardware.mantener();
         }
 
+        if (modo) {
+           hardware.GH1.setPower(gamepad2.right_stick_y);
+           hardware.GH2.setPower(gamepad2.left_stick_y);
+            hardware.Elev(0,targetposition);
+            hardware.extendo.setPower(0);
+        }
+
         if (gamepad2.y){
             hardware.posicion_inicial();
         } else if (gamepad2.x) {
@@ -88,15 +100,18 @@ public class Teleop extends OpMode {
         }
 
 
-        
-        if (gamepad2.left_trigger > 0.3){
+        if (modo == false) {
+            hardware.Elev(1,targetposition);
+            hardware.extendo.setPower(gamepad2.right_stick_y);
+        }
+
+        if (gamepad2.left_trigger > 0.3) {
             hardware.tomar(1);
         } else if (gamepad2.right_trigger > 0.3) {
             hardware.dejar(1);
-        }else {
+        } else {
             hardware.tomar(0);
         }
-
 
         if (gamepad2.left_bumper){
             hardware.abrir();
@@ -105,6 +120,6 @@ public class Teleop extends OpMode {
         if (gamepad2.right_bumper){
             hardware.cerrar();
         }
-        hardware.Elev(1,targetposition);
+
     }
 }

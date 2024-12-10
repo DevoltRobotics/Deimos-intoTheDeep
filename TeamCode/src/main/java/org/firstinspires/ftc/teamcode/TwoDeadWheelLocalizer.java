@@ -28,8 +28,8 @@ import org.firstinspires.ftc.teamcode.messages.TwoDeadWheelInputsMessage;
 @Config
 public final class TwoDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double parYTicks = 0.0; // y position of the parallel encoder (in tick units)
-        public double perpXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
+        public double parYTicks = -2000.6959937156323; // y position of the parallel encoder (in tick units)
+        public double perpXTicks = 240.34799685781616; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
@@ -56,7 +56,6 @@ public final class TwoDeadWheelLocalizer implements Localizer {
         par.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.navx = navx;
-
         this.inPerTick = inPerTick;
 
         FlightRecorder.write("TWO_DEAD_WHEEL_PARAMS", PARAMS);
@@ -107,8 +106,8 @@ public final class TwoDeadWheelLocalizer implements Localizer {
         if (!initialized) {
             initialized = true;
 
-            lastParPos = parPosVel.position;
-            lastPerpPos = perpPosVel.position;
+            lastParPos = (int) parPosVel.position;
+            lastPerpPos = (int) perpPosVel.position;
             lastHeading = heading;
 
             return new Twist2dDual<>(
@@ -117,8 +116,8 @@ public final class TwoDeadWheelLocalizer implements Localizer {
             );
         }
 
-        int parPosDelta = parPosVel.position - lastParPos;
-        int perpPosDelta = perpPosVel.position - lastPerpPos;
+        int parPosDelta = (int) (parPosVel.position - lastParPos);
+        int perpPosDelta = (int) (perpPosVel.position - lastPerpPos);
         double headingDelta = heading.minus(lastHeading);
 
         Twist2dDual<Time> twist = new Twist2dDual<>(
@@ -138,8 +137,8 @@ public final class TwoDeadWheelLocalizer implements Localizer {
                 })
         );
 
-        lastParPos = parPosVel.position;
-        lastPerpPos = perpPosVel.position;
+        lastParPos = (int) parPosVel.position;
+        lastPerpPos = (int) perpPosVel.position;
         lastHeading = heading;
 
         return twist;
