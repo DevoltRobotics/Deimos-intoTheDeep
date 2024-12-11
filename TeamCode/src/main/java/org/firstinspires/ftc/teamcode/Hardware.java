@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.actions.CRservoAction;
 import org.firstinspires.ftc.teamcode.actions.ServoAction;
@@ -44,7 +45,7 @@ public class Hardware {
     public PIDFController brazoController = new PIDFController(brazoCoeffs);
 
     public static PIDFController.PIDCoefficients rielesCoeffs = new PIDFController.PIDCoefficients(
-            0.5, 0, 0
+            0.01, 0, 0
     );
 
     public PIDFController rielesController = new PIDFController(rielesCoeffs);
@@ -77,8 +78,8 @@ public class Hardware {
         GH2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         GH2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        elev.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         elev.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elev.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -239,18 +240,30 @@ public class Hardware {
 
     class ElevAction implements Action {
         int ticks;
+        ElapsedTime timer = new ElapsedTime();
 
 
         public ElevAction(int ticks, double power) {
             this.ticks = ticks;
         }
 
+        boolean firstRun = true;
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            rielesController.targetPosition = ticks;
-            elev.setPower(rielesController.update(elev.getCurrentPosition()));
 
-            return Math.abs(rielesController.lastError) > 20;
+
+
+                if (firstRun){
+                    timer.reset();
+                    firstRun = false;
+                }
+                rielesController.targetPosition = ticks;
+                elev.setPower(rielesController.update(elev.getCurrentPosition()));
+                telemetryPacket.addLine(String.valueOf(elev.getCurrentPosition()));
+
+                return Math.abs(rielesController.lastError) > 50 || timer.seconds()>3;
+
+
         }
     }
 

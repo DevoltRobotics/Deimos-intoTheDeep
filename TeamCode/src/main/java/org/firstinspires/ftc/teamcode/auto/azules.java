@@ -165,9 +165,6 @@ public class azules extends LinearOpMode {
 
         waitForStart();
         Actions.runBlocking(auto);
-        while (true){
-            telemetry.addData("barzo",hardware.GH2.getCurrentPosition());
-            telemetry.update();
-        }
+
     }
 }
