@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.actions.CRservoAction;
 import org.firstinspires.ftc.teamcode.actions.ServoAction;
+import org.opencv.core.Mat;
 
 @Config
 public class Hardware {
@@ -41,6 +42,12 @@ public class Hardware {
     );
 
     public PIDFController brazoController = new PIDFController(brazoCoeffs);
+
+    public static PIDFController.PIDCoefficients rielesCoeffs = new PIDFController.PIDCoefficients(
+            0.5, 0, 0
+    );
+
+    public PIDFController rielesController = new PIDFController(rielesCoeffs);
 
     public void init(HardwareMap hardwareMap){
 
@@ -83,7 +90,7 @@ public class Hardware {
         extendo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        elev.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      elev.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void shupar(){
@@ -110,9 +117,23 @@ public class Hardware {
         G2.setPower(1);
     }
 
+    public Action eskupirAction(){
+        return new ParallelAction(
+                new CRservoAction(G1,-1),
+                new CRservoAction(G2,1)
+        );
+    }
+
     public void mantener(){
         G1.setPower(0);
         G2.setPower(0);
+    }
+
+    public Action mantenerAction (){
+        return new ParallelAction(
+                new CRservoAction(G1,0),
+                new CRservoAction(G2,0)
+        );
     }
 
    public void Elev(double power, int ticks){
@@ -151,8 +172,8 @@ public class Hardware {
 
     public Action inclinadoAction(){
         return new ParallelAction(
-          new ServoAction(carpus1,0.7),
-          new ServoAction(carpus2,0.3)
+          new ServoAction(carpus1,0.72),
+          new ServoAction(carpus2,0.28)
         );
     }
 
@@ -218,20 +239,18 @@ public class Hardware {
 
     class ElevAction implements Action {
         int ticks;
-        double power;
+
 
         public ElevAction(int ticks, double power) {
             this.ticks = ticks;
-            this.power = power;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            elev.setTargetPosition(ticks);
-            elev.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            elev.setPower(power);
+            rielesController.targetPosition = ticks;
+            elev.setPower(rielesController.update(elev.getCurrentPosition()));
 
-            return elev.isBusy();
+            return Math.abs(rielesController.lastError) > 20;
         }
     }
 
