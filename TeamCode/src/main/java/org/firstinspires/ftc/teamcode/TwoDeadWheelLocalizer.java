@@ -12,7 +12,6 @@ import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
-import com.kauailabs.navx.ftc.AHRS;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -35,7 +34,6 @@ public final class TwoDeadWheelLocalizer implements Localizer {
     public static Params PARAMS = new Params();
 
     public final Encoder par, perp;
-    public final AHRS navx;
 
     private int lastParPos, lastPerpPos;
     private Rotation2d lastHeading;
@@ -45,7 +43,7 @@ public final class TwoDeadWheelLocalizer implements Localizer {
     private double lastRawHeadingVel, headingVelOffset;
     private boolean initialized;
 
-    public TwoDeadWheelLocalizer(HardwareMap hardwareMap, AHRS navx, double inPerTick) {
+    public TwoDeadWheelLocalizer(HardwareMap hardwareMap, IMU navx, double inPerTick) {
         // TODO: make sure your config has **motors** with these names (or change them)
         //   the encoders should be plugged into the slot matching the named motor
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -55,7 +53,6 @@ public final class TwoDeadWheelLocalizer implements Localizer {
         // TODO: reverse encoder directions if needed
         par.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        this.navx = navx;
         this.inPerTick = inPerTick;
 
         FlightRecorder.write("TWO_DEAD_WHEEL_PARAMS", PARAMS);
@@ -75,7 +72,7 @@ public final class TwoDeadWheelLocalizer implements Localizer {
         PositionVelocityPair parPosVel = par.getPositionAndVelocity();
         PositionVelocityPair perpPosVel = perp.getPositionAndVelocity();
 
-        double currentAngle = -navx.getYaw();
+        double currentAngle = 0;//-navx.getYaw();
         lastAngularRate = ((currentAngle - lastAngle + 180) % 360 - 180) / deltaTimer.seconds();
         lastAngle = currentAngle;
         deltaTimer.reset();

@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -21,15 +22,16 @@ public class azules extends LinearOpMode {
 
 
     @Override
-    public void runOpMode() throws InterruptedException {
-        mecanumDrive = new PinpointDrive(hardwareMap, new Pose2d(0,0,0));
+    public void runOpMode() {
+        Pose2d startPose = new Pose2d(-8, -62, Math.toRadians(270));
+
+        mecanumDrive = new PinpointDrive(hardwareMap, startPose);
 
         hardware = new Hardware();
         hardware.init(hardwareMap);
 
-        mecanumDrive.pose = new Pose2d(-8, -62, Math.toRadians(270));
-
-        Action auto = mecanumDrive.actionBuilder(new Pose2d(-8, -62, Math.toRadians(270)))
+        Action auto = mecanumDrive.actionBuilder(startPose)
+                // DEJAR PRIMER SPECIMEN
                 .afterTime(0, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
                         hardware.cerrarAction()
@@ -40,26 +42,45 @@ public class azules extends LinearOpMode {
                 .strafeToConstantHeading(new Vector2d(-8,-38))
                 .afterTime(0.5,hardware.brazoToPosAction(-5100))
                 .waitSeconds(2)
+
+                // AGARRAR
                 .afterTime(0,new ParallelAction(
                         hardware.abrirAction(),
                         hardware.extendAction(700,1),
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
-                        hardware.brazoToPosAction(0)
+                        hardware.brazoToPosAction(0),
+                        hardware.elevAction(-100, 0.8) // ajustar para agarrar
                 ))
-                .splineToLinearHeading(new Pose2d(-48,-47, Math.toRadians(90)), Math.toRadians(180))
-                .strafeToConstantHeading(new Vector2d(-48,-40))
+                .splineToLinearHeading(new Pose2d(-50.5,-47, Math.toRadians(90)), Math.toRadians(180))
+                .strafeToConstantHeading(new Vector2d(-51,-40))
+
                 .waitSeconds(1)
+
+                // DEJAR
                 .afterTime(0, new ParallelAction(
-                        hardware.posicion_inicialAction(),
+                        hardware.posicion_inicialAction(), // carpus
                         hardware.extendAction(0,1)
                 ))
-                .strafeToLinearHeading(new Vector2d(-54,-52), Math.toRadians(45))
+                .afterTime(0.5, hardware.cerrarAction())
+                .afterTime(1, new ParallelAction(
+                        hardware.brazoToPosAction(-6700),
+                        hardware.elevAction(-3700,1)
+                ))
+                .afterTime(3, hardware.abrirAction())
+                .afterTime(4, new ParallelAction(
+                        hardware.brazoToPosAction(0),
+                        new SequentialAction(
+                                new SleepAction(500), // esperar para empezar a bajar el elevador
+                                hardware.elevAction(0,1)
+                        )
+                ))
+                .strafeToLinearHeading(new Vector2d(-52.5,-50.5), Math.toRadians(45))
+                .waitSeconds(1)
                 .build();
 
         waitForStart();
-        telemetry.addData("imu", Math.toDegrees(mecanumDrive.pose.heading.toDouble()));
-        telemetry.update();
+
         Actions.runBlocking(auto);
     }
 }

@@ -64,16 +64,26 @@ public class Hardware {
         GH1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         GH2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        /*
+        reset encoders
+         */
         GH2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         GH2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        extendo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-       // extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        elev.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elev.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         elev.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        /*
+        resto de configuraciones
+         */
+
+        extendo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        elev.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void shupar(){
@@ -167,7 +177,6 @@ public class Hardware {
         garra.setPosition(0.37);
     }
 
-
     public ServoAction abrirAction() {
         return new ServoAction(garra, 0);
     }
@@ -178,6 +187,10 @@ public class Hardware {
 
     public ExtendAction extendAction(int ticks, double power) {
         return new ExtendAction(ticks, power);
+    }
+
+    public ElevAction elevAction(int ticks, double power) {
+        return new ElevAction(ticks, power);
     }
 
     public BrazoToPosAction brazoToPosAction(int targetPos) {
@@ -200,6 +213,25 @@ public class Hardware {
             extendo.setPower(power);
 
             return extendo.isBusy();
+        }
+    }
+
+    class ElevAction implements Action {
+        int ticks;
+        double power;
+
+        public ElevAction(int ticks, double power) {
+            this.ticks = ticks;
+            this.power = power;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            elev.setTargetPosition(ticks);
+            elev.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            elev.setPower(power);
+
+            return elev.isBusy();
         }
     }
 
