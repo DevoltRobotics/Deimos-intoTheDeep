@@ -32,7 +32,6 @@ public class azules extends LinearOpMode {
         hardware.init(hardwareMap);
 
         Action auto = mecanumDrive.actionBuilder(startPose)
-
                 // DEJAR PRIMER SPECIMEN
                 .afterTime(0, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
@@ -42,9 +41,10 @@ public class azules extends LinearOpMode {
                 .strafeToConstantHeading(new Vector2d(-8,-45))
                 .waitSeconds(.8)
                 .strafeToConstantHeading(new Vector2d(-8,-38))
-                .afterTime(0.5,hardware.brazoToPosAction(-5100))
+                .afterTime(0.5, hardware.brazoToPosAction(-5100))
                 .waitSeconds(2)
                 .afterTime(0.2, hardware.abrirAction())
+
                 // AGARRAR
                 .afterTime(0,new ParallelAction(
                         hardware.extendAction(700,1),
@@ -55,6 +55,7 @@ public class azules extends LinearOpMode {
                 ))
                 .splineToLinearHeading(new Pose2d(-50.5,-47, Math.toRadians(90)), Math.toRadians(180))
                 .strafeToConstantHeading(new Vector2d(-51,-40))
+
                 .afterTime(0.5, hardware.mantenerAction())
                 .afterTime(1.5,hardware.shuparAction())
                 .waitSeconds(1)
@@ -163,7 +164,8 @@ public class azules extends LinearOpMode {
 
         waitForStart();
         Actions.runBlocking(new ParallelAction(
-                auto, hardware.elevUpdateAction() // update elevador constantemente
+                auto,
+                hardware.elevUpdateAction() // update elevador constantemente
         ));
 
     }
