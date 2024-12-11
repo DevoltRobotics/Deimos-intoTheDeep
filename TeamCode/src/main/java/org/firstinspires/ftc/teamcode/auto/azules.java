@@ -8,13 +8,11 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Hardware;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.PinpointDrive;
 
 @Autonomous(name = "Azules", group = "####")
@@ -53,7 +51,7 @@ public class azules extends LinearOpMode {
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
                         hardware.brazoToPosAction(0),
-                        hardware.elevAction(-100, 0.8) // ajustar para agarrar
+                        hardware.elevToPosAction(-100) // ajustar para agarrar
                 ))
                 .splineToLinearHeading(new Pose2d(-50.5,-47, Math.toRadians(90)), Math.toRadians(180))
                 .strafeToConstantHeading(new Vector2d(-51,-40))
@@ -70,14 +68,14 @@ public class azules extends LinearOpMode {
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
-                        hardware.elevAction(-3700,1)
+                        hardware.elevToPosAction(-3700)
                 ))
                 .afterTime(3, hardware.abrirAction())
                 .afterTime(4, new ParallelAction(
                         hardware.brazoToPosAction(0),
                         new SequentialAction(
                                 new SleepAction(500), // esperar para empezar a bajar el elevador
-                                hardware.elevAction(0,1)
+                                hardware.elevToPosAction(0)
                         )
                 ))
                 .strafeToLinearHeading(new Vector2d(-52.5,-50.5), Math.toRadians(45))//posicion para poner
@@ -88,7 +86,7 @@ public class azules extends LinearOpMode {
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
                         hardware.brazoToPosAction(0),
-                        hardware.elevAction(-100, 0.8) // ajustar para agarrar
+                        hardware.elevToPosAction(-100) // ajustar para agarrar
                 ))
                 .waitSeconds(0.2)
                 .splineToLinearHeading(new Pose2d(-59.5,-49, Math.toRadians(90)), Math.toRadians(180), new TranslationalVelConstraint(20))//agarrar 2do
@@ -104,7 +102,7 @@ public class azules extends LinearOpMode {
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
-                        hardware.elevAction(-3700,1),
+                        hardware.elevToPosAction(-3700),
                         hardware.eskupirAction()
                 ))
                 .afterTime(3, hardware.abrirAction())
@@ -112,7 +110,7 @@ public class azules extends LinearOpMode {
                         hardware.brazoToPosAction(0),
                         new SequentialAction(
                                 new SleepAction(500), // esperar para empezar a bajar el elevador
-                                hardware.elevAction(0,1)
+                                hardware.elevToPosAction(0)
                         )
                 ))
                 .strafeToLinearHeading(new Vector2d(-52.5,-50.5), Math.toRadians(45))//posicion para poner
@@ -123,7 +121,7 @@ public class azules extends LinearOpMode {
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
                         hardware.brazoToPosAction(0),
-                        hardware.elevAction(-100, 0.8) // ajustar para agarrar
+                        hardware.elevToPosAction(-100) // ajustar para agarrar
                 ))
                 .waitSeconds(0.2)
                 .splineToLinearHeading(new Pose2d(-52.5,-45, Math.toRadians(135)), Math.toRadians(180), new TranslationalVelConstraint(20))
@@ -140,7 +138,7 @@ public class azules extends LinearOpMode {
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
-                        hardware.elevAction(-3700,1),
+                        hardware.elevToPosAction(-3700),
                         hardware.eskupirAction()
                 ))
                 .afterTime(3, hardware.abrirAction())
@@ -148,7 +146,7 @@ public class azules extends LinearOpMode {
                         hardware.brazoToPosAction(0),
                         new SequentialAction(
                                 new SleepAction(500), // esperar para empezar a bajar el elevador
-                                hardware.elevAction(0,1)
+                                hardware.elevToPosAction(0)
                         )
                 ))
                 .strafeToLinearHeading(new Vector2d(-52.5,-50.5), Math.toRadians(45))//posicion para poner
@@ -157,14 +155,16 @@ public class azules extends LinearOpMode {
                         hardware.abrirAction(),
                         hardware.shuparAction(),
                         hardware.brazoToPosAction(0),
-                        hardware.elevAction(0, 0.8)
+                        hardware.elevToPosAction(0)
                 ))
                 .waitSeconds(0.2)
                 .splineToLinearHeading(new Pose2d(-27,-5, Math.toRadians(180)), Math.toRadians(0))
                 .build();
 
         waitForStart();
-        Actions.runBlocking(auto);
+        Actions.runBlocking(new ParallelAction(
+                auto, hardware.elevUpdateAction() // update elevador constantemente
+        ));
 
     }
 }

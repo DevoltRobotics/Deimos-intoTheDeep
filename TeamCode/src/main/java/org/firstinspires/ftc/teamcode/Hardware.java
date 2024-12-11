@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -12,11 +11,9 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.actions.CRservoAction;
 import org.firstinspires.ftc.teamcode.actions.ServoAction;
-import org.opencv.core.Mat;
 
 @Config
 public class Hardware {
@@ -49,6 +46,7 @@ public class Hardware {
     );
 
     public PIDFController rielesController = new PIDFController(rielesCoeffs);
+    public double rielesTargetPos = 0;
 
     public void init(HardwareMap hardwareMap){
 
@@ -211,8 +209,12 @@ public class Hardware {
         return new ExtendAction(ticks, power);
     }
 
-    public ElevAction elevAction(int ticks, double power) {
-        return new ElevAction(ticks, power);
+    public ElevToPosAction elevToPosAction(int ticks) {
+        return new ElevToPosAction(ticks);
+    }
+
+    public ElevUpdateAction elevUpdateAction() {
+        return new ElevUpdateAction();
     }
 
     public BrazoToPosAction brazoToPosAction(int targetPos) {
@@ -238,32 +240,27 @@ public class Hardware {
         }
     }
 
-    class ElevAction implements Action {
+    class ElevToPosAction implements Action {
         int ticks;
-        ElapsedTime timer = new ElapsedTime();
 
-
-        public ElevAction(int ticks, double power) {
+        public ElevToPosAction(int ticks) {
             this.ticks = ticks;
         }
 
-        boolean firstRun = true;
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            rielesTargetPos = ticks; // set target position and end action
+            return false;
+        }
+    }
 
+    class ElevUpdateAction implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            rielesController.targetPosition = rielesTargetPos;
+            elev.setPower(rielesController.update(elev.getCurrentPosition()));
 
-
-                if (firstRun){
-                    timer.reset();
-                    firstRun = false;
-                }
-                rielesController.targetPosition = ticks;
-                elev.setPower(rielesController.update(elev.getCurrentPosition()));
-                telemetryPacket.addLine(String.valueOf(elev.getCurrentPosition()));
-
-                return Math.abs(rielesController.lastError) > 50 || timer.seconds()>3;
-
-
+            return true; // ejecutar por siempre
         }
     }
 
