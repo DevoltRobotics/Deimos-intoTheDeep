@@ -5,16 +5,27 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 
 @TeleOp (name = "teleop")
 public class Teleop extends OpMode {
 
+
+
+    ElapsedTime timerColgar = new ElapsedTime();
+    boolean voltageIndicatorBoolean;
+    boolean noForzarServos = false;
     MecanumDrive mecanumDrive;
     Hardware hardware;
     int targetposition;
     int targetpositionext;
     boolean modo = false;
+    boolean manualRight;
+    boolean manualLeft;
 
 
     @Override
@@ -77,6 +88,7 @@ public class Teleop extends OpMode {
         telemetry.addData("elevador",targetposition);
         telemetry.addData("extendo",targetpositionext);
         telemetry.addData("brazo pos", hardware.GH2.getCurrentPosition());
+        telemetry.addData("voltaje",hardware.GH2.getCurrent(CurrentUnit.AMPS));
 
         if(gamepad2.a){
             hardware.shupar();
@@ -87,10 +99,45 @@ public class Teleop extends OpMode {
         }
 
         if (modo) {
-           hardware.GH1.setPower(gamepad2.right_stick_y);
-           hardware.GH2.setPower(gamepad2.left_stick_y);
+            manualRight = Math.abs(gamepad2.right_stick_y) > 0.5;
+            manualLeft = Math.abs(gamepad2.left_stick_y) > 0.5;
+
+
+
+                hardware.GH1.setPower(gamepad2.right_stick_y);
+                
+
+
+
+
+                hardware.GH2.setPower(gamepad2.left_stick_y);
+
+
+
+
+
+            if (manualRight && manualLeft){
+                voltageIndicatorBoolean = true;
+                timerColgar.reset();
+
+                noForzarServos = false;
+
+            }
+
+            if ((Math.abs(hardware.GH2.getCurrent(CurrentUnit.AMPS)) > 1 && Math.abs(hardware.GH2.getCurrent(CurrentUnit.AMPS)) > 1  && timerColgar.seconds() > 0.2 )){
+                hardware.ServoDown();
+
+                noForzarServos = true;
+
+
+                telemetry.addLine("motor_forzado");
+            }
             hardware.Elev(0,targetposition);
             hardware.extendo.setPower(0);
+        }
+
+        if (gamepad1.right_bumper){
+            hardware.ServoUp();
         }
 
         if (gamepad2.y){

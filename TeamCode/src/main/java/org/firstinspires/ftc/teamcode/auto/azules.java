@@ -69,7 +69,7 @@ public class azules extends LinearOpMode {
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
-                        hardware.elevToPosAction(-3700)
+                        hardware.elevToPosAction(-3750)
                 ))
                 .afterTime(3, hardware.abrirAction())
                 .afterTime(4, new ParallelAction(
@@ -103,7 +103,7 @@ public class azules extends LinearOpMode {
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
-                        hardware.elevToPosAction(-3700),
+                        hardware.elevToPosAction(-3750),
                         hardware.eskupirAction()
                 ))
                 .afterTime(3, hardware.abrirAction())
@@ -139,7 +139,7 @@ public class azules extends LinearOpMode {
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
                         hardware.brazoToPosAction(-6700),
-                        hardware.elevToPosAction(-3700),
+                        hardware.elevToPosAction(-3750),
                         hardware.eskupirAction()
                 ))
                 .afterTime(3, hardware.abrirAction())

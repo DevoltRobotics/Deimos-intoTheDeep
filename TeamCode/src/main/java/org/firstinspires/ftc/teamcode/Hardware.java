@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -22,8 +23,8 @@ public class Hardware {
 
     public DcMotor extendo;
     public DcMotor elev;
-    public DcMotor GH1;
-    public DcMotor GH2;
+    public DcMotorEx GH1;
+    public DcMotorEx GH2;
 
     public Servo carpus1;
     public Servo carpus2;
@@ -54,8 +55,8 @@ public class Hardware {
 
         extendo = hardwareMap.dcMotor.get("extendo");
         elev = hardwareMap.dcMotor.get("elev");
-        GH1 = hardwareMap.dcMotor.get("GH1");
-        GH2 = hardwareMap.dcMotor.get("GH2");
+        GH1 = hardwareMap.get(DcMotorEx.class, "GH1");
+        GH2 = hardwareMap.get(DcMotorEx.class, "GH2");
 
         carpus1 = hardwareMap.get(Servo.class,"carpus1");
         carpus2 = hardwareMap.get(Servo.class,"carpus2");
@@ -145,6 +146,15 @@ public class Hardware {
         extendo.setTargetPosition(ticks);
         extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         extendo.setPower(power);
+    }
+
+    public void ServoDown(){
+        izq.setPosition(1);
+        der.setPosition(0);
+    }
+    public void ServoUp(){
+        izq.setPosition(0);
+        der.setPosition(1);
     }
 
     public void posicion_inicial() {
