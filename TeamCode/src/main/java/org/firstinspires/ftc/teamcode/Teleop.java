@@ -6,9 +6,6 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 
 @TeleOp (name = "teleop")
@@ -16,16 +13,12 @@ public class Teleop extends OpMode {
 
 
 
-    ElapsedTime timerColgar = new ElapsedTime();
-    boolean voltageIndicatorBoolean;
-    boolean noForzarServos = false;
+
     MecanumDrive mecanumDrive;
     Hardware hardware;
     int targetposition;
     int targetpositionext;
-    boolean modo = false;
-    boolean manualRight;
-    boolean manualLeft;
+
 
 
     @Override
@@ -39,9 +32,7 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
 
-        if (gamepad2.left_trigger == 1 && gamepad2.right_trigger == 1){
-            modo = true;
-        }
+
 
         if (Math.abs(gamepad2.left_stick_y) >= 0.1) {
             targetposition -= (gamepad2.left_stick_y) * 45 ;
@@ -55,12 +46,6 @@ public class Teleop extends OpMode {
 
         if (Math.abs(gamepad2.right_stick_y) >= 0.1) {
             targetpositionext += (int) ((gamepad2.right_stick_y) * 45);
-        } else {
-            if (gamepad2.dpad_right) {
-                targetpositionext = 700;
-            } else if (gamepad2.dpad_left) {
-                targetpositionext = 0;
-            }
         }
 
 
@@ -84,11 +69,9 @@ public class Teleop extends OpMode {
         }
 
         telemetry.addData("imu", Math.toDegrees(mecanumDrive.pose.heading.toDouble()));
-
         telemetry.addData("elevador",targetposition);
-        telemetry.addData("extendo",targetpositionext);
-        telemetry.addData("brazo pos", hardware.GH2.getCurrentPosition());
-        telemetry.addData("voltaje",hardware.GH2.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("extendo1",hardware.Ext1.getPosition());
+        telemetry.addData("extendo2",hardware.Ext2.getPosition());
 
         if(gamepad2.a){
             hardware.shupar();
@@ -98,47 +81,14 @@ public class Teleop extends OpMode {
          hardware.mantener();
         }
 
-        if (modo) {
-            manualRight = Math.abs(gamepad2.right_stick_y) > 0.5;
-            manualLeft = Math.abs(gamepad2.left_stick_y) > 0.5;
-
-
-
-                hardware.GH1.setPower(gamepad2.right_stick_y);
-                
-
-
-
-
-                hardware.GH2.setPower(gamepad2.left_stick_y);
-
-
-
-
-
-            if (manualRight && manualLeft){
-                voltageIndicatorBoolean = true;
-                timerColgar.reset();
-
-                noForzarServos = false;
-
-            }
-
-            if ((Math.abs(hardware.GH2.getCurrent(CurrentUnit.AMPS)) > 1 && Math.abs(hardware.GH2.getCurrent(CurrentUnit.AMPS)) > 1  && timerColgar.seconds() > 0.2 )){
-                hardware.ServoDown();
-
-                noForzarServos = true;
-
-
-                telemetry.addLine("motor_forzado");
-            }
-            hardware.Elev(0,targetposition);
-            hardware.extendo.setPower(0);
+        if (gamepad2.dpad_right){
+            hardware.Extend();
+        } else if (gamepad2.dpad_left) {
+            hardware.Rectract();
         }
 
-        if (gamepad1.right_bumper){
-            hardware.ServoUp();
-        }
+
+
 
         if (gamepad2.y){
             hardware.posicion_inicial();
@@ -147,17 +97,17 @@ public class Teleop extends OpMode {
         }
 
 
-        if (modo == false) {
-            hardware.Elev(1,targetposition);
-            hardware.extendo.setPower(gamepad2.right_stick_y);
-        }
 
-        if (gamepad2.left_trigger > 0.3) {
-            hardware.tomar(1);
-        } else if (gamepad2.right_trigger > 0.3) {
-            hardware.dejar(1);
+            hardware.Elev(1,targetposition);
+
+
+
+        if (gamepad2.left_trigger > 0.1) {
+            hardware.Virtual(-gamepad2.left_trigger);
+        } else if (gamepad2.right_trigger > 0.1) {
+            hardware.Virtual(gamepad2.right_trigger);
         } else {
-            hardware.tomar(0);
+            hardware.Virtual(0);
         }
 
         if (gamepad2.left_bumper){

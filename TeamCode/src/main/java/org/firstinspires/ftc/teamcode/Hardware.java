@@ -21,20 +21,21 @@ public class Hardware {
 
     MecanumDrive mecanumDrive;
 
-    public DcMotor extendo;
-    public DcMotor elev;
-    public DcMotorEx GH1;
-    public DcMotorEx GH2;
+
+    public DcMotor elev1;
+    public DcMotor elev2;
+    public DcMotor virtual;
+
 
     public Servo carpus1;
     public Servo carpus2;
     public Servo garra;
-    public Servo izq;
-    public Servo der;
+    public Servo Ext1;
+    public Servo Ext2;
 
     public CRServo G1;
     public CRServo G2;
-    public CRServo brazo;
+
 
     public static PIDFController.PIDCoefficients brazoCoeffs = new PIDFController.PIDCoefficients(
             0.001, 0, 0
@@ -53,49 +54,57 @@ public class Hardware {
 
         mecanumDrive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
-        extendo = hardwareMap.dcMotor.get("extendo");
-        elev = hardwareMap.dcMotor.get("elev");
-        GH1 = hardwareMap.get(DcMotorEx.class, "GH1");
-        GH2 = hardwareMap.get(DcMotorEx.class, "GH2");
+
+        elev1 = hardwareMap.dcMotor.get("elev1");
+        elev2 = hardwareMap.dcMotor.get("elev2");
+        virtual = hardwareMap.dcMotor.get("virtual");
 
         carpus1 = hardwareMap.get(Servo.class,"carpus1");
         carpus2 = hardwareMap.get(Servo.class,"carpus2");
         garra = hardwareMap.get(Servo.class,"garra");
-        izq = hardwareMap.get(Servo.class,"izq");
-        der = hardwareMap.get(Servo.class,"der");
+        Ext1 = hardwareMap.get(Servo.class,"Ext1");
+        Ext2 = hardwareMap.get(Servo.class,"Ext2");
 
-        brazo = hardwareMap.get(CRServo.class,"brazo");
+
         G1 = hardwareMap.get(CRServo.class,"G1");
         G2 = hardwareMap.get(CRServo.class,"G2");
 
-        GH1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        GH2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         /*
         reset encoders
          */
-        GH2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        GH2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        elev.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        elev.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elev1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elev1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elev1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elev2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elev2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elev2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        virtual.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
 
         /*
         resto de configuraciones
          */
 
-        extendo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-      elev.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void shupar(){
         G1.setPower(1);
         G2.setPower(-1);
+    }
+
+    public void Extend (){
+        Ext1.setPosition(0.7);
+        Ext2.setPosition(0.7);
+    }
+
+    public void Rectract(){
+        Ext1.setPosition(0.4);
+        Ext2.setPosition(1);
     }
 
     public Action shuparAction (){
@@ -136,10 +145,17 @@ public class Hardware {
         );
     }
 
+    public void Virtual(double power){
+        virtual.setPower(power);
+    }
+
    public void Elev(double power, int ticks){
-        elev.setTargetPosition(ticks);
-        elev.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        elev.setPower(power);
+        elev1.setTargetPosition(ticks);
+        elev1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        elev1.setPower(power);
+        elev2.setTargetPosition(-ticks);
+        elev2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        elev2.setPower(power);
     }
 
     public void Extend(double power, int ticks){
@@ -175,8 +191,8 @@ public class Hardware {
     }
 
     public void inclinado() {
-        carpus1.setPosition(0.7);
-        carpus2.setPosition(0.3);
+        carpus1.setPosition(0.72);
+        carpus2.setPosition(0.28);
     }
 
     public Action inclinadoAction(){
@@ -268,7 +284,7 @@ public class Hardware {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             rielesController.targetPosition = rielesTargetPos;
-            elev.setPower(rielesController.update(elev.getCurrentPosition()));
+            elev1.setPower(rielesController.update(elev1.getCurrentPosition()));
 
             return true; // ejecutar por siempre
         }
