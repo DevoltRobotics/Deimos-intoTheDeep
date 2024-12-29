@@ -158,20 +158,7 @@ public class Hardware {
         elev2.setPower(power);
     }
 
-    public void Extend(double power, int ticks){
-        extendo.setTargetPosition(ticks);
-        extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendo.setPower(power);
-    }
 
-    public void ServoDown(){
-        izq.setPosition(1);
-        der.setPosition(0);
-    }
-    public void ServoUp(){
-        izq.setPosition(0);
-        der.setPosition(1);
-    }
 
     public void posicion_inicial() {
             carpus1.setPosition(0.45);
@@ -202,18 +189,7 @@ public class Hardware {
         );
     }
 
-    public void colgarse(double power){
-        GH1.setPower(power);
-        GH2.setPower(power);
-    }
 
-    public void tomar(double power){
-        brazo.setPower(-power);
-    }
-
-    public void dejar(double power){
-        brazo.setPower(power);
-    }
 
     public void abrir(){
         garra.setPosition(0);
@@ -231,9 +207,7 @@ public class Hardware {
         return new ServoAction(garra, 0.37);
     }
 
-    public ExtendAction extendAction(int ticks, double power) {
-        return new ExtendAction(ticks, power);
-    }
+
 
     public ElevToPosAction elevToPosAction(int ticks) {
         return new ElevToPosAction(ticks);
@@ -243,28 +217,9 @@ public class Hardware {
         return new ElevUpdateAction();
     }
 
-    public BrazoToPosAction brazoToPosAction(int targetPos) {
-        return new BrazoToPosAction(targetPos);
-    }
 
-    class ExtendAction implements Action {
-        int ticks;
-        double power;
 
-        public ExtendAction(int ticks, double power) {
-            this.ticks = ticks;
-            this.power = power;
-        }
 
-        @Override
-        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            extendo.setTargetPosition(ticks);
-            extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extendo.setPower(power);
-
-            return extendo.isBusy();
-        }
-    }
 
     class ElevToPosAction implements Action {
         int ticks;
@@ -290,19 +245,5 @@ public class Hardware {
         }
     }
 
-    class BrazoToPosAction implements Action {
-        double targetPos;
 
-        public BrazoToPosAction(double targetPos) {
-            this.targetPos = targetPos;
-        }
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            brazoController.targetPosition = targetPos;
-            brazo.setPower(-brazoController.update(GH2.getCurrentPosition()));
-
-            return Math.abs(brazoController.lastError) > 50;
-        }
-    }
 }

@@ -34,16 +34,16 @@ public class Azules_sample extends LinearOpMode {
         Action auto = mecanumDrive.actionBuilder(startPose)
                 // DEJAR PRIMER SPECIMEN
                 .afterTime(0, new ParallelAction(
-                        hardware.brazoToPosAction(-5100),
+                      //  hardware.brazoToPosAction(-5100),
                         hardware.cerrarAction()
                 ) )
                 .afterTime(1, new ParallelAction(
-                        hardware.brazoToPosAction(-5100),
+                       // hardware.brazoToPosAction(-5100),
                         hardware.elevToPosAction(-3900)
                 ))
                 .afterTime(3, hardware.abrirAction())
                 .afterTime(4, new ParallelAction(
-                        hardware.brazoToPosAction(0),
+                       // hardware.brazoToPosAction(0),
                         new SequentialAction(
                                 new SleepAction(500), // esperar para empezar a bajar el elevador
                                 hardware.elevToPosAction(0)
@@ -54,18 +54,18 @@ public class Azules_sample extends LinearOpMode {
                 .waitSeconds(2.2)
                 .afterTime(0,new ParallelAction(
                         hardware.abrirAction(),
-                        hardware.extendAction(700,1),
-                        hardware.brazoToPosAction(0),
+                       /* hardware.extendAction(700,1),
+                        hardware.brazoToPosAction(0),*/
                         hardware.inclinadoAction(),
                         hardware.shuparAction()
                 ))
                 .waitSeconds(0.2)
                 // AGARRAR
                 .afterTime(0,new ParallelAction(
-                        hardware.extendAction(700,1),
+                       // hardware.extendAction(700,1),
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
-                        hardware.brazoToPosAction(0),
+                        //hardware.brazoToPosAction(0),
                         hardware.elevToPosAction(-100) // ajustar para agarrar
                 ))
                 .splineToLinearHeading(new Pose2d(-50.5,-49.5, Math.toRadians(90)), Math.toRadians(180))
@@ -78,17 +78,17 @@ public class Azules_sample extends LinearOpMode {
 
                 // DEJAR
                 .afterTime(0, new ParallelAction(
-                        hardware.posicion_inicialAction(), // carpus
-                        hardware.extendAction(0,1)
+                        hardware.posicion_inicialAction() // carpus
+                       // hardware.extendAction(0,1)
                 ))
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
-                        hardware.brazoToPosAction(-5100),
+                       // hardware.brazoToPosAction(-5100),
                         hardware.elevToPosAction(-3900)
                 ))
                 .afterTime(3, hardware.abrirAction())
                 .afterTime(4, new ParallelAction(
-                        hardware.brazoToPosAction(0),
+                        //hardware.brazoToPosAction(0),
                         new SequentialAction(
                                 new SleepAction(500), // esperar para empezar a bajar el elevador
                                 hardware.elevToPosAction(0)
@@ -99,8 +99,8 @@ public class Azules_sample extends LinearOpMode {
                 .waitSeconds(2)
                 .afterTime(0,new ParallelAction(
                         hardware.abrirAction(),
-                        hardware.extendAction(700,1),
-                        hardware.brazoToPosAction(0),
+                        /*hardware.extendAction(700,1),
+                        hardware.brazoToPosAction(0),*/
                         hardware.inclinadoAction(),
                         hardware.shuparAction()
                 ))
@@ -113,17 +113,17 @@ public class Azules_sample extends LinearOpMode {
                 .waitSeconds(0.8)
 
                 .afterTime(0, new ParallelAction(
-                        hardware.posicion_inicialAction(), // carpus
-                        hardware.extendAction(0,1)
+                        hardware.posicion_inicialAction() // carpus
+                       // hardware.extendAction(0,1)
                 ))
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
-                        hardware.brazoToPosAction(-5100),
+                        //hardware.brazoToPosAction(-5100),
                         hardware.elevToPosAction(-3900)
                 ))
                 .afterTime(3, hardware.abrirAction())
                 .afterTime(4, new ParallelAction(
-                        hardware.brazoToPosAction(0),
+                        //hardware.brazoToPosAction(0),
                         new SequentialAction(
                                 new SleepAction(500), // esperar para empezar a bajar el elevador
                                 hardware.elevToPosAction(0)
@@ -134,10 +134,10 @@ public class Azules_sample extends LinearOpMode {
                 .waitSeconds(2.2)
                 .afterTime(0,new ParallelAction(
                         hardware.abrirAction(),
-                        hardware.extendAction(700,1),
+                        //hardware.extendAction(700,1),
                         hardware.inclinadoAction(),
-                        hardware.shuparAction(),
-                        hardware.brazoToPosAction(0)
+                        hardware.shuparAction()
+                       // hardware.brazoToPosAction(0)
 
                 ))
                 .waitSeconds(0.2)
@@ -149,12 +149,12 @@ public class Azules_sample extends LinearOpMode {
                 .waitSeconds(0.8)
 
                 .afterTime(0, new ParallelAction(
-                        hardware.posicion_inicialAction(), // carpus
-                        hardware.extendAction(0,1)
+                        hardware.posicion_inicialAction() // carpus
+                       // hardware.extendAction(0,1)
                 ))
                 .afterTime(0.5, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
-                        hardware.brazoToPosAction(-5100),
+                       // hardware.brazoToPosAction(-5100),
                         hardware.elevToPosAction(-3900)
                 ))
                 .afterTime(3, hardware.abrirAction())
@@ -175,8 +175,8 @@ public class Azules_sample extends LinearOpMode {
                 ))
                 .waitSeconds(0.2)
                 .afterTime(0.5, new ParallelAction(
-                        hardware.elevToPosAction(0),
-                        hardware.brazoToPosAction(-5350)
+                        hardware.elevToPosAction(0)
+                       // hardware.brazoToPosAction(-5350)
                 ))
                 .splineToLinearHeading(new Pose2d(-25,-5, Math.toRadians(180)), Math.toRadians(0),new TranslationalVelConstraint(65),new ProfileAccelConstraint(-60,60))
                 .build();
