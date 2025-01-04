@@ -40,6 +40,8 @@ public class Teleop extends OpMode {
             if (gamepad2.dpad_up) {
                 targetposition = 1400*3;
             } else if (gamepad2.dpad_down) {
+                targetposition = 45;
+            } else if (targetposition < 0) {
                 targetposition = 0;
             }
         }
@@ -98,14 +100,16 @@ public class Teleop extends OpMode {
 
 
 
-            hardware.Elev(1,targetposition);
+        hardware.elevadorAuto(1,targetposition);
+        hardware.elev1.setPower(-gamepad2.left_stick_y);
+        hardware.elev2.setPower(gamepad2.left_stick_y);
 
 
 
         if (gamepad2.left_trigger > 0.1) {
-            hardware.Virtual(-gamepad2.left_trigger);
+            hardware.Virtual(-gamepad2.left_trigger*0.5);
         } else if (gamepad2.right_trigger > 0.1) {
-            hardware.Virtual(gamepad2.right_trigger);
+            hardware.Virtual(gamepad2.right_trigger*0.5);
         } else {
             hardware.Virtual(0);
         }

@@ -44,7 +44,7 @@ public class Hardware {
     public PIDFController brazoController = new PIDFController(brazoCoeffs);
 
     public static PIDFController.PIDCoefficients rielesCoeffs = new PIDFController.PIDCoefficients(
-            0.01, 0, 0
+            0.0001, 0, 0
     );
 
     public PIDFController rielesController = new PIDFController(rielesCoeffs);
@@ -158,6 +158,16 @@ public class Hardware {
         elev2.setPower(power);
     }
 
+    public void elevadorAuto(double power, int ticks) {
+        rielesController.targetPosition = ticks;
+
+        rielesController.setOutputBounds(-1, 1);
+
+        double rielesPower = rielesController.update(elev2.getCurrentPosition()) * power;
+
+        elev1.setPower(rielesPower);
+        elev2.setPower(-rielesPower);
+    }
 
 
     public void posicion_inicial() {
