@@ -161,11 +161,11 @@ public class Hardware {
     public void elevadorAuto(double power, int ticks) {
         rielesController.targetPosition = ticks;
 
-        rielesController.setOutputBounds(-1, 1);
 
-        double rielesPower = rielesController.update(elev2.getCurrentPosition()) * power;
 
-        elev1.setPower(rielesPower);
+        double rielesPower = rielesController.update(elev2.getCurrentPosition());
+
+        elev1.setPower(rielesController.update(elev2.getCurrentPosition()));
         elev2.setPower(-rielesPower);
     }
 
@@ -206,7 +206,7 @@ public class Hardware {
     }
 
     public void cerrar(){
-        garra.setPosition(0.37);
+        garra.setPosition(0.38);
     }
 
     public ServoAction abrirAction() {
@@ -251,7 +251,7 @@ public class Hardware {
             rielesController.targetPosition = rielesTargetPos;
             elev1.setPower(rielesController.update(elev1.getCurrentPosition()));
 
-            return true; // ejecutar por siempre
+            return true; // ejecutar por siempre y para siempre
         }
     }
 
