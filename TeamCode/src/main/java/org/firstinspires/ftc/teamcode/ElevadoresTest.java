@@ -29,11 +29,14 @@ public class ElevadoresTest extends OpMode {
         }
 
         if(elev) {
-            hardware.elevToPosAction(-3900).run(null);
+            hardware.elevToPosAction(-1000).run(null);
         } else {
-            hardware.elevToPosAction(-100).run(null);
+            hardware.elevToPosAction(0).run(null);
         }
 
         elevUpdateAction.run(null);
+
+        telemetry.addData("target", hardware.elevTargetPos);
+        telemetry.addData("pos", hardware.elev2.getCurrentPosition());
     }
 }

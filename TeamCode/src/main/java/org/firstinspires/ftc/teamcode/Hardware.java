@@ -7,14 +7,17 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.actions.CRservoAction;
 import org.firstinspires.ftc.teamcode.actions.ServoAction;
+
 
 @Config
 public class Hardware {
@@ -37,18 +40,23 @@ public class Hardware {
     public CRServo G2;
 
 
+    Limelight3A limelight;
+
+
     public static PIDFController.PIDCoefficients brazoCoeffs = new PIDFController.PIDCoefficients(
-            0.001, 0, 0
+            0.003, 0, 0
     );
 
     public PIDFController brazoController = new PIDFController(brazoCoeffs);
 
+    public double brazoTargetPos = 0;
+
     public static PIDFController.PIDCoefficients rielesCoeffs = new PIDFController.PIDCoefficients(
-            0.0001, 0, 0
+            0.01, 0, 0
     );
 
-    public PIDFController rielesController = new PIDFController(rielesCoeffs);
-    public double rielesTargetPos = 0;
+    public PIDFController elevController = new PIDFController(rielesCoeffs);
+    public double elevTargetPos = 0;
 
     public void init(HardwareMap hardwareMap){
 
@@ -69,19 +77,16 @@ public class Hardware {
         G1 = hardwareMap.get(CRServo.class,"G1");
         G2 = hardwareMap.get(CRServo.class,"G2");
 
+      //  limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
-        /*
-        reset encoders
-         */
+
+
 
         elev1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        elev1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        elev1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         elev2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        elev2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        elev2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        elev1.setDirection(DcMotorSimple.Direction.REVERSE);
         virtual.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
 
 
@@ -89,6 +94,19 @@ public class Hardware {
         resto de configuraciones
          */
 
+
+    }
+
+    public void SARbrazo (){
+        virtual.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        virtual.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void SARelev(){
+        elev1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elev1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elev2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elev2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
 
@@ -102,9 +120,23 @@ public class Hardware {
         Ext2.setPosition(0.7);
     }
 
+    public Action ExtendAction(){
+        return new ParallelAction(
+             new ServoAction( Ext1,0.7),
+             new ServoAction( Ext2,0.7)
+        );
+    }
+
     public void Rectract(){
         Ext1.setPosition(0.4);
         Ext2.setPosition(1);
+    }
+
+    public Action RetractAction(){
+        return new ParallelAction(
+                new ServoAction( Ext1,0.4),
+                new ServoAction( Ext2,1)
+        );
     }
 
     public Action shuparAction (){
@@ -158,27 +190,18 @@ public class Hardware {
         elev2.setPower(power);
     }
 
-    public void elevadorAuto(double power, int ticks) {
-        rielesController.targetPosition = ticks;
 
-
-
-        double rielesPower = rielesController.update(elev2.getCurrentPosition());
-
-        elev1.setPower(rielesController.update(elev2.getCurrentPosition()));
-        elev2.setPower(-rielesPower);
-    }
 
 
     public void posicion_inicial() {
-            carpus1.setPosition(0.45);
-            carpus2.setPosition(0.55);
+            carpus1.setPosition(0.35);
+            carpus2.setPosition(0.65);
     }
 
     public Action posicion_inicialAction(){
         return new ParallelAction(
-                new ServoAction(carpus1,0.45),
-                new ServoAction(carpus2,0.55)
+                new ServoAction(carpus1,0.43),
+                new ServoAction(carpus2,0.57)
         );
     }
 
@@ -188,25 +211,64 @@ public class Hardware {
     }
 
     public void inclinado() {
-        carpus1.setPosition(0.72);
-        carpus2.setPosition(0.28);
+        carpus1.setPosition(0.57);
+        carpus2.setPosition(0.43);
+    }
+
+    public void derecho(){
+        carpus1.setPosition(0.5);
+        carpus2.setPosition(0.5);
     }
 
     public Action inclinadoAction(){
         return new ParallelAction(
-          new ServoAction(carpus1,0.72),
-          new ServoAction(carpus2,0.28)
+          new ServoAction(carpus1,0.65),
+          new ServoAction(carpus2,0.35)
         );
     }
 
+    public Action brazoToPosAction(int ticks) {
+        return new BrazoToPosAction(ticks);
+    }
 
+    public Action brazoUpdateAction() {
+        return new BrazoUpdateAction();
+    }
+
+
+    class BrazoToPosAction implements Action {
+        int ticks;
+
+        public BrazoToPosAction(int ticks) {
+            this.ticks = ticks;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            brazoTargetPos = ticks; // set target position and end action
+            return false;
+        }
+    }
+
+    class BrazoUpdateAction implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+            brazoController.targetPosition = Range.clip(brazoTargetPos, -3000, 0);
+
+            double brazo = brazoController.update(virtual.getCurrentPosition());
+            virtual.setPower(brazo);
+
+            return true; // ejecutar por siempre y para siempre
+        }
+    }
 
     public void abrir(){
         garra.setPosition(0);
     }
 
     public void cerrar(){
-        garra.setPosition(0.38);
+        garra.setPosition(0.42);
     }
 
     public ServoAction abrirAction() {
@@ -214,9 +276,8 @@ public class Hardware {
     }
 
     public ServoAction cerrarAction() {
-        return new ServoAction(garra, 0.37);
+        return new ServoAction(garra, 0.45);
     }
-
 
 
     public ElevToPosAction elevToPosAction(int ticks) {
@@ -231,6 +292,7 @@ public class Hardware {
 
 
 
+
     class ElevToPosAction implements Action {
         int ticks;
 
@@ -240,7 +302,7 @@ public class Hardware {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            rielesTargetPos = ticks; // set target position and end action
+            elevTargetPos = ticks; // set target position and end action
             return false;
         }
     }
@@ -248,8 +310,11 @@ public class Hardware {
     class ElevUpdateAction implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            rielesController.targetPosition = rielesTargetPos;
-            elev1.setPower(rielesController.update(elev1.getCurrentPosition()));
+            elevController.targetPosition = Range.clip(elevTargetPos, -2700, 0);
+
+            double elev = elevController.update(elev2.getCurrentPosition());
+            elev1.setPower(-elev);
+            elev2.setPower(elev);
 
             return true; // ejecutar por siempre y para siempre
         }
