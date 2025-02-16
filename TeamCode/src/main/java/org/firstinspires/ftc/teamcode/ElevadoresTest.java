@@ -29,7 +29,7 @@ public class ElevadoresTest extends OpMode {
         }
 
         if(elev) {
-            hardware.elevToPosAction(-1000).run(null);
+            hardware.elevToPosAction(-1610).run(null);
         } else {
             hardware.elevToPosAction(0).run(null);
         }

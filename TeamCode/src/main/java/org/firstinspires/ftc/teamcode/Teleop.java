@@ -4,11 +4,14 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-@TeleOp(name = "teleop")
+
+@TeleOp(name = "teleop", group = "##")
 public class Teleop extends OpMode {
 
     MecanumDrive mecanumDrive;
@@ -16,11 +19,15 @@ public class Teleop extends OpMode {
 
     Action brazoUpdateAction = hardware.brazoUpdateAction();
     Action elevUpdateAction = hardware.elevUpdateAction();
+    Action brazodownsmoothaction ;
+    Action brazoupsmoothaction;
+
 
     enum virtual {
         manual,
         dejar,
-        agarrar
+        agarrar,
+        Specimen
     }
 
     enum lift {
@@ -39,27 +46,69 @@ public class Teleop extends OpMode {
     public void init() {
         mecanumDrive = new PinpointDrive(hardwareMap, new Pose2d(0, 0, 0));
         hardware.init(hardwareMap);
+        telemetry.setMsTransmissionInterval(11);
+
+        hardware.limelight.pipelineSwitch(3);
+
+        /*
+         * Starts polling for data.
+         */
+        hardware.limelight.start();
     }
 
     @Override
     public void loop() {
 
-        switch (liftstate) {
+
+            LLResult result = hardware.limelight.getLatestResult();
+            if (result != null) {
+                if (result.isValid()) {
+                    Pose3D botpose = result.getBotpose();
+                    telemetry.addData("tx", result.getTx());
+                    telemetry.addData("ty", result.getTy());
+                    double targetOffsetAngle_Vertical = result.getTy();
+
+                    // how many degrees back is your limelight rotated from perfectly vertical?
+                    double limelightMountAngleDegrees = 32.0;
+
+                    // distance from the center of the Limelight lens to the floor
+                    double limelightLensHeightInches = 4.0;
+
+                    // distance from the target to the floor
+                    double goalHeightInches = 0;
+
+                    double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
+                    double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
+
+                    //calculate distance
+                    double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
+                    telemetry.addData("distance", distanceFromLimelightToGoalInches);
+                }
+            } else {
+        telemetry.addData("Limelight", "No Targets");
+        }
+
+
+
+                    switch (liftstate) {
             case manual:
                 if (Math.abs(gamepad2.left_stick_y) >= 0.1) {
                     hardware.elevTargetPos += (gamepad2.left_stick_y) * 45;
                 }
                 break;
             case dejar:
-                hardware.elevToPosAction(-2600).run(null);
+
+
+                    hardware.elevToPosAction(-1650).run(null);
 
                 if(prevLiftState != liftstate) {
                     virtualstate = virtual.dejar;
                 }
                 break;
             case agarrar:
-                hardware.elevToPosAction(-13).run(null);
-
+        if (hardware.virtual.getCurrentPosition() > -150) {
+            hardware.elevToPosAction(-105).run(null);
+        }
                 if(prevLiftState != liftstate) {
                     virtualstate = virtual.agarrar;
                 }
@@ -70,26 +119,33 @@ public class Teleop extends OpMode {
         switch (virtualstate) {
             case manual:
                 if (gamepad2.left_trigger > 0.1) {
-                    hardware.brazoTargetPos += (gamepad2.left_trigger) * 12;
+                    hardware.brazoTargetPos += (gamepad2.left_trigger) * 15;
                 } else if (gamepad2.right_trigger > 0.1) {
-                    hardware.brazoTargetPos -= (gamepad2.right_trigger) * 12;
+                    hardware.brazoTargetPos -= (gamepad2.right_trigger) * 15;
                 }
 
 
                 break;
             case dejar:
-                if (hardware.elev2.getCurrentPosition() < -1800) {
-                    hardware.brazoToPosAction(-365).run(null);
+                if (hardware.elev2.getCurrentPosition() < -200) {
+                    brazoupsmoothaction.run(null);
                 }
                 break;
             case agarrar:
-                hardware.brazoToPosAction(0).run(null);
+                brazodownsmoothaction.run(null);
                 break;
-
+            case Specimen:
+                hardware.brazoToPosAction(-460).run(null);
         }
 
         if (gamepad2.right_trigger >= 0.1 || gamepad2.left_trigger >= 0.1) {
             virtualstate = virtual.manual;
+        }
+
+        if (gamepad2.right_stick_button){
+            hardware.pickS();
+        } else if (gamepad2.left_stick_button) {
+            hardware.dropS();
         }
 
         if (Math.abs(gamepad2.left_stick_y) >= 0.1) {
@@ -97,8 +153,11 @@ public class Teleop extends OpMode {
         } else {
             if (gamepad2.dpad_up) {
                 liftstate = lift.dejar;
+                brazoupsmoothaction = hardware.brazoToPosSmoothAction(-375, 1, -250);
+
             } else if (gamepad2.dpad_down) {
                 liftstate = lift.agarrar;
+                brazodownsmoothaction = hardware.brazoToPosSmoothAction(0, 0.5, -50);
             }
         }
 
@@ -131,7 +190,8 @@ public class Teleop extends OpMode {
         telemetry.addData("elevador", hardware.elevTargetPos);
         telemetry.addData("extendo1", hardware.Ext1.getPosition());
         telemetry.addData("extendo2", hardware.Ext2.getPosition());
-
+        telemetry.addData("brazotarget",hardware.brazoTargetPos);
+        telemetry.addData("brazo",hardware.virtual.getCurrentPosition());
 
         if (gamepad2.a) {
             hardware.shupar();

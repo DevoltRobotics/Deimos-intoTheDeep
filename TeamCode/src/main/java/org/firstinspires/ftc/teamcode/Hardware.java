@@ -8,11 +8,13 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.actions.CRservoAction;
@@ -27,7 +29,7 @@ public class Hardware {
 
     public DcMotor elev1;
     public DcMotor elev2;
-    public DcMotor virtual;
+
 
 
     public Servo carpus1;
@@ -35,27 +37,45 @@ public class Hardware {
     public Servo garra;
     public Servo Ext1;
     public Servo Ext2;
+    public Servo Falangs;
 
     public CRServo G1;
     public CRServo G2;
+    public CRServo Brazo;
+
+    AnalogInput VirtualPos;
 
 
-    Limelight3A limelight;
+    public Limelight3A limelight;
 
 
     public static PIDFController.PIDCoefficients brazoCoeffs = new PIDFController.PIDCoefficients(
-            0.003, 0, 0
+            0.006, 0, 0
     );
 
     public PIDFController brazoController = new PIDFController(brazoCoeffs);
 
+    public static PIDFController.PIDCoefficients brazoCoeffsDown = new PIDFController.PIDCoefficients(
+            0.007, 0, 0
+    );
+    public static double FFBrazo = 0.08;
+
+    public PIDFController brazoControllerDown = new PIDFController(brazoCoeffsDown);
+
     public double brazoTargetPos = 0;
 
     public static PIDFController.PIDCoefficients rielesCoeffs = new PIDFController.PIDCoefficients(
-            0.01, 0, 0
+            0.016, 0, 0
     );
 
     public PIDFController elevController = new PIDFController(rielesCoeffs);
+
+    public static PIDFController.PIDCoefficients rielesCoeffsDown = new PIDFController.PIDCoefficients(
+            0.013, 0, 0
+    );
+
+    public PIDFController elevControllerDown = new PIDFController(rielesCoeffsDown);
+
     public double elevTargetPos = 0;
 
     public void init(HardwareMap hardwareMap){
@@ -65,19 +85,22 @@ public class Hardware {
 
         elev1 = hardwareMap.dcMotor.get("elev1");
         elev2 = hardwareMap.dcMotor.get("elev2");
-        virtual = hardwareMap.dcMotor.get("virtual");
 
         carpus1 = hardwareMap.get(Servo.class,"carpus1");
         carpus2 = hardwareMap.get(Servo.class,"carpus2");
         garra = hardwareMap.get(Servo.class,"garra");
         Ext1 = hardwareMap.get(Servo.class,"Ext1");
         Ext2 = hardwareMap.get(Servo.class,"Ext2");
+        Falangs = hardwareMap.get(Servo.class,"falange");
 
 
         G1 = hardwareMap.get(CRServo.class,"G1");
         G2 = hardwareMap.get(CRServo.class,"G2");
+        Brazo = hardwareMap.get(CRServo.class,"brazo");
 
-      //  limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        VirtualPos = hardwareMap.get(AnalogInput.class, "Brazoencoder");
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
 
 
@@ -85,7 +108,7 @@ public class Hardware {
         elev1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elev2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elev1.setDirection(DcMotorSimple.Direction.REVERSE);
-        virtual.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
 
 
@@ -97,10 +120,9 @@ public class Hardware {
 
     }
 
-    public void SARbrazo (){
-        virtual.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        virtual.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
+    double BrazoP = VirtualPos.getVoltage() / 3.3 * 360;
+
+
 
     public void SARelev(){
         elev1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -115,6 +137,21 @@ public class Hardware {
         G2.setPower(-1);
     }
 
+    public void pickS(){
+        Falangs.setPosition(1);
+    }
+
+    public ServoAction pickS_Action() {
+        return new ServoAction(Falangs, 1);
+    }
+
+    public void dropS(){
+        Falangs.setPosition(0.7);
+    }
+
+    public ServoAction dropS_Action() {
+        return new ServoAction(Falangs, 0.7);
+    }
     public void Extend (){
         Ext1.setPosition(0.7);
         Ext2.setPosition(0.7);
@@ -177,31 +214,20 @@ public class Hardware {
         );
     }
 
-    public void Virtual(double power){
-        virtual.setPower(power);
-    }
 
-   public void Elev(double power, int ticks){
-        elev1.setTargetPosition(ticks);
-        elev1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        elev1.setPower(power);
-        elev2.setTargetPosition(-ticks);
-        elev2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        elev2.setPower(power);
-    }
 
 
 
 
     public void posicion_inicial() {
-            carpus1.setPosition(0.35);
-            carpus2.setPosition(0.65);
+            carpus1.setPosition(0.27);
+            carpus2.setPosition(0.73);
     }
 
     public Action posicion_inicialAction(){
         return new ParallelAction(
-                new ServoAction(carpus1,0.43),
-                new ServoAction(carpus2,0.57)
+                new ServoAction(carpus1,0.27),
+                new ServoAction(carpus2,0.73)
         );
     }
 
@@ -211,24 +237,28 @@ public class Hardware {
     }
 
     public void inclinado() {
-        carpus1.setPosition(0.57);
-        carpus2.setPosition(0.43);
+        carpus1.setPosition(0.52);
+        carpus2.setPosition(0.48);
     }
 
     public void derecho(){
-        carpus1.setPosition(0.5);
-        carpus2.setPosition(0.5);
+        carpus1.setPosition(0.4);
+        carpus2.setPosition(0.6);
     }
 
     public Action inclinadoAction(){
         return new ParallelAction(
-          new ServoAction(carpus1,0.65),
-          new ServoAction(carpus2,0.35)
+          new ServoAction(carpus1,0.52),
+          new ServoAction(carpus2,0.48)
         );
     }
 
     public Action brazoToPosAction(int ticks) {
         return new BrazoToPosAction(ticks);
+    }
+
+    public Action brazoToPosSmoothAction(int ticks, double t, double p1) {
+        return new BrazoToPosSmoothAction(ticks, t, p1);
     }
 
     public Action brazoUpdateAction() {
@@ -250,21 +280,69 @@ public class Hardware {
         }
     }
 
+    class BrazoToPosSmoothAction implements Action {
+
+        int ticks;
+        double timeSeconds;
+        double p1;
+
+        double currentTicks;
+
+        ElapsedTime timer = null;
+
+        public BrazoToPosSmoothAction(int ticks, double timeSeconds, double p1) {
+            this.ticks = ticks;
+            this.timeSeconds = timeSeconds;
+            this.p1 = p1;
+        }
+
+        private double lerp(double start, double end, double t) {
+            return start * (1 - t) + end * t;
+        }
+        public double bezier(double p0, double p1, double p2, double t) {
+            double q0 = lerp(p0, p1, t);
+            double q1 = lerp(p1, p2, t);
+
+            return lerp(q0, q1, t);
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if(timer == null) {
+                timer = new ElapsedTime();
+                currentTicks = BrazoP;
+            }
+
+            double t = Range.clip(timer.seconds() / timeSeconds, 0, 1);
+
+            brazoTargetPos = (int) bezier(currentTicks, p1, ticks, t);
+
+            return timer.seconds() <= timeSeconds;
+        }
+    }
+
     class BrazoUpdateAction implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 
-            brazoController.targetPosition = Range.clip(brazoTargetPos, -3000, 0);
+            if (brazoTargetPos> BrazoP){
+                brazoControllerDown.targetPosition = Range.clip(brazoTargetPos, -360, 360);
 
-            double brazo = brazoController.update(virtual.getCurrentPosition());
-            virtual.setPower(brazo);
+                double brazoD = brazoControllerDown.update(BrazoP);
+                Brazo.setPower(brazoD);
+            }
+            if (brazoTargetPos < BrazoP) {
+                brazoController.targetPosition = Range.clip(brazoTargetPos, -3000, 0);
 
+                double brazo = brazoController.update(BrazoP);
+                Brazo.setPower(brazo);
+            }
             return true; // ejecutar por siempre y para siempre
         }
     }
 
     public void abrir(){
-        garra.setPosition(0);
+        garra.setPosition(0.1);
     }
 
     public void cerrar(){
@@ -272,11 +350,11 @@ public class Hardware {
     }
 
     public ServoAction abrirAction() {
-        return new ServoAction(garra, 0);
+        return new ServoAction(garra, 0.1);
     }
 
     public ServoAction cerrarAction() {
-        return new ServoAction(garra, 0.45);
+        return new ServoAction(garra, 0.42);
     }
 
 
@@ -310,12 +388,26 @@ public class Hardware {
     class ElevUpdateAction implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            elevController.targetPosition = Range.clip(elevTargetPos, -2700, 0);
 
-            double elev = elevController.update(elev2.getCurrentPosition());
-            elev1.setPower(-elev);
-            elev2.setPower(elev);
+            if (elevTargetPos> elev2.getCurrentPosition()){
 
+                elevControllerDown.targetPosition = Range.clip(elevTargetPos, -1650, 0);
+
+                double elevD = elevControllerDown.update(elev2.getCurrentPosition());
+                elev1.setPower(-elevD);
+                elev2.setPower(elevD);
+            }
+
+
+            if (elevTargetPos< elev2.getCurrentPosition()) {
+
+                elevController.targetPosition = Range.clip(elevTargetPos, -1650, 0);
+
+                double elev = elevController.update(elev2.getCurrentPosition());
+                elev1.setPower(-elev);
+                elev2.setPower(elev);
+
+            }
             return true; // ejecutar por siempre y para siempre
         }
     }

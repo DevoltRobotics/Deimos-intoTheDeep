@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.PinpointDrive;
 
-@Autonomous(name = "Azules sample", group = "####")
+@Autonomous(name = "Azules sample", group = "a")
 public class Azules_sample extends LinearOpMode {
 
     PinpointDrive mecanumDrive;

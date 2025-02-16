@@ -1,41 +1,55 @@
 package org.firstinspires.ftc.teamcode.tuning;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Hardware;
 @TeleOp
+@Config
 public class Brazotest extends OpMode {
+    public static double p1_arriba = -50;
+
     Hardware hardware = new Hardware();
 
     Action brazoUpdateAction = hardware.brazoUpdateAction();
+    Action brazoAct1;
+    Action brazoAct2;
 
     @Override
     public void init() {
         hardware.init(hardwareMap);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     boolean brazo = false;
 
     @Override
     public void loop() {
-        if(gamepad1.a){
+        if (gamepad1.a) {
             brazo = true;
+            brazoAct1 = hardware.brazoToPosSmoothAction(-375, 1, -250);
         }
 
-        if(gamepad1.b) {
+        if (gamepad1.b) {
             brazo = false;
+            brazoAct2 = hardware.brazoToPosSmoothAction(0, 0.5, p1_arriba);
         }
 
-        if(brazo) {
-            hardware.brazoToPosAction(-500).run(null);
+        if (brazo) {
+            if(brazoAct1 != null)
+                brazoAct1.run(null);
         } else {
-            hardware.brazoToPosAction(0).run(null);
+            if(brazoAct2 != null)
+                brazoAct2.run(null);
         }
 
         brazoUpdateAction.run(null);
 
+        telemetry.addData("state", brazo);
         telemetry.addData("target", hardware.brazoTargetPos);
         telemetry.addData("pos", hardware.virtual.getCurrentPosition());
     }
