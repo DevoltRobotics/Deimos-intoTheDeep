@@ -58,6 +58,7 @@ public class Teleop extends OpMode {
 
     @Override
     public void loop() {
+        hardware.BrazoP = hardware.VirtualPos.getVoltage() / 3.3 * 360;
 
 
             LLResult result = hardware.limelight.getLatestResult();
@@ -106,8 +107,8 @@ public class Teleop extends OpMode {
                 }
                 break;
             case agarrar:
-        if (hardware.virtual.getCurrentPosition() > -150) {
-            hardware.elevToPosAction(-105).run(null);
+        if (hardware.BrazoP < 150 ) {
+            hardware.elevToPosAction(-80).run(null);
         }
                 if(prevLiftState != liftstate) {
                     virtualstate = virtual.agarrar;
@@ -119,17 +120,16 @@ public class Teleop extends OpMode {
         switch (virtualstate) {
             case manual:
                 if (gamepad2.left_trigger > 0.1) {
-                    hardware.brazoTargetPos += (gamepad2.left_trigger) * 15;
+                    hardware.brazoTargetPos += (gamepad2.left_trigger) * 5;
                 } else if (gamepad2.right_trigger > 0.1) {
-                    hardware.brazoTargetPos -= (gamepad2.right_trigger) * 15;
+                    hardware.brazoTargetPos -= (gamepad2.right_trigger) * 5;
                 }
-
 
                 break;
             case dejar:
-                if (hardware.elev2.getCurrentPosition() < -200) {
+
                     brazoupsmoothaction.run(null);
-                }
+
                 break;
             case agarrar:
                 brazodownsmoothaction.run(null);
@@ -153,17 +153,14 @@ public class Teleop extends OpMode {
         } else {
             if (gamepad2.dpad_up) {
                 liftstate = lift.dejar;
-                brazoupsmoothaction = hardware.brazoToPosSmoothAction(-375, 1, -250);
+                brazoupsmoothaction = hardware.brazoToPosAction(280);
 
             } else if (gamepad2.dpad_down) {
                 liftstate = lift.agarrar;
-                brazodownsmoothaction = hardware.brazoToPosSmoothAction(0, 0.5, -50);
+                brazodownsmoothaction = hardware.brazoToPosAction(0);
             }
         }
 
-        if (gamepad1.y){
-            hardware.SARbrazo();
-        }
 
         elevUpdateAction.run(null);
         brazoUpdateAction.run(null);
@@ -186,12 +183,15 @@ public class Teleop extends OpMode {
             mecanumDrive.pose = (new Pose2d(0, 0, 0));
         }
 
+        hardware.updateArmPosition();
+
         telemetry.addData("imu", Math.toDegrees(mecanumDrive.pose.heading.toDouble()));
         telemetry.addData("elevador", hardware.elevTargetPos);
         telemetry.addData("extendo1", hardware.Ext1.getPosition());
         telemetry.addData("extendo2", hardware.Ext2.getPosition());
         telemetry.addData("brazotarget",hardware.brazoTargetPos);
-        telemetry.addData("brazo",hardware.virtual.getCurrentPosition());
+        telemetry.addData("brazo",hardware.BrazoP);
+        telemetry.addData("brazo relative", hardware.brazoPRelative);
 
         if (gamepad2.a) {
             hardware.shupar();

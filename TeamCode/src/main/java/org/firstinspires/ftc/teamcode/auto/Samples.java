@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -29,7 +32,7 @@ public class Samples extends LinearOpMode {
 
         hardware = new Hardware();
         hardware.init(hardwareMap);
-        hardware.SARbrazo();
+
         hardware.SARelev();
 
 
@@ -37,20 +40,23 @@ public class Samples extends LinearOpMode {
 
                 .afterTime(0, new ParallelAction(
                         hardware.cerrarAction(),
-                        hardware.elevToPosAction(-1650),
+                        hardware.elevToPosOnceAction(-1650),
                         hardware.posicion_inicialAction()
-                ) )
-                .afterTime(0, hardware.brazoToPosSmoothAction(-375,1, -250))
-                .afterTime(1.5, hardware.abrirAction())
+                ))
+                .afterTime(0, hardware.brazoToPosOnceAction(250))
+                .afterTime(1.5, new ParallelAction(
+                        hardware.abrirAction(),
+                        hardware.brazoToPosAction(0)
+                ))
                 .strafeToLinearHeading(new Vector2d(-52,-50), Math.toRadians(45))//posicion para poner
-                .afterTime(0.5, hardware.brazoToPosSmoothAction(0, 1, -150))
                 .waitSeconds(.5)
-                .afterTime(1,new ParallelAction(
+                .afterTime(1, hardware.brazoToPosOnceAction(0))
+                .afterTime(1, new ParallelAction(
                         hardware.abrirAction(),
                         hardware.ExtendAction(),
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
-                        hardware.elevToPosAction(-65)
+                        hardware.elevToPosOnceAction(-65)
                 ))
                 .splineToLinearHeading(new Pose2d(-48,-55, Math.toRadians(90)), Math.toRadians(180))//posicion agarrar
                 .strafeToConstantHeading(new Vector2d(-48,-40),new TranslationalVelConstraint(20),new ProfileAccelConstraint(-10,10))
@@ -62,11 +68,11 @@ public class Samples extends LinearOpMode {
                 ))
                 .afterTime(0.7, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
-                        hardware.brazoToPosSmoothAction(-380,1, -250),
+                        hardware.brazoToPosAction(250),
                         hardware.elevToPosAction(-1650)
                 ))
                 .afterTime(2, hardware.abrirAction())
-                .afterTime(3.5, hardware.brazoToPosSmoothAction(0, 1, -150))
+                .afterTime(3.5, hardware.brazoToPosAction(0))
                 .strafeToLinearHeading(new Vector2d(-51,-49), Math.toRadians(45))
 
                 .waitSeconds(1.5)
@@ -85,11 +91,11 @@ public class Samples extends LinearOpMode {
                 ))
                 .afterTime(0.7, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
-                        hardware.brazoToPosSmoothAction(-380,1, -250),
+                        hardware.brazoToPosAction(250),
                         hardware.elevToPosAction(-1650)
                 ))
                 .afterTime(2, hardware.abrirAction())
-                .afterTime(4, hardware.brazoToPosSmoothAction(0, 1, -150))
+                .afterTime(4, hardware.brazoToPosAction(0))
                 .strafeToLinearHeading(new Vector2d(-51,-49), Math.toRadians(45))
                 .waitSeconds(1.5)
                 .afterTime(2, hardware.elevToPosAction(-65))
@@ -110,7 +116,7 @@ public class Samples extends LinearOpMode {
                 ))
                 .afterTime(0.7, hardware.cerrarAction())
                 .afterTime(1, new ParallelAction(
-                        hardware.brazoToPosSmoothAction(-380,1, -250),
+                        hardware.brazoToPosAction(250),
                         hardware.elevToPosAction(-1650),
                         hardware.mantenerAction()
                 ))
@@ -123,13 +129,20 @@ public class Samples extends LinearOpMode {
 
         waitForStart();
 
-        hardware.SARbrazo();
+
         hardware.SARelev();
 
         Actions.runBlocking(new ParallelAction(
                 auto,
                 hardware.elevUpdateAction(), // update elevador constantemente
-                hardware.brazoUpdateAction()
+                hardware.brazoUpdateAction(),
+
+                telemetryPacket -> {
+
+                    telemetry.addData("brazo",hardware.brazoTargetPos);
+                    telemetry.update();
+                    return false;
+                }
         ));
     }
 }

@@ -30,7 +30,6 @@ public class Azules_sample extends LinearOpMode {
 
         hardware = new Hardware();
         hardware.init(hardwareMap);
-        hardware.SARbrazo();
         hardware.SARelev();
 
         Action auto = mecanumDrive.actionBuilder(startPose)
@@ -164,20 +163,25 @@ public class Azules_sample extends LinearOpMode {
                 .waitSeconds(2.2)
                 .afterTime(0,new ParallelAction(
                         hardware.abrirAction(),
-                        hardware.shuparAction()
+                        hardware.ExtendAction(),
+                        hardware.inclinadoAction(),
+                        hardware.shuparAction(),
+                        hardware.brazoToPosAction(0)
 
                 ))
                 .waitSeconds(0.2)
-                .afterTime(1.5, new ParallelAction(
-
-                        hardware.brazoToPosAction(-390)
+                .splineToLinearHeading(new Pose2d(-23,-5, Math.toRadians(180)), Math.toRadians(180))
+                .afterTime(0,new ParallelAction(
+                        hardware.inclinadoAction(),
+                        hardware.ExtendAction(),
+                        hardware.shuparAction()
                 ))
-                .splineToLinearHeading(new Pose2d(-23,-5, Math.toRadians(180)), Math.toRadians(0),new TranslationalVelConstraint(65),new ProfileAccelConstraint(-60,60))
                 .build();
 
         waitForStart();
         Actions.runBlocking(new ParallelAction(
                 auto,
+
                 hardware.elevUpdateAction(), // update elevador constantemente
                 hardware.brazoUpdateAction()
         ));

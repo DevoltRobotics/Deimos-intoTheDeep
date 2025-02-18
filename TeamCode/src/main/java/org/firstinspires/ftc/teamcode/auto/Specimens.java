@@ -27,7 +27,7 @@ public class Specimens extends LinearOpMode {
 
         hardware = new Hardware();
         hardware.init(hardwareMap);
-        hardware.SARbrazo();
+
         hardware.SARelev();
 
         Action auto = mecanumDrive.actionBuilder(startPose)

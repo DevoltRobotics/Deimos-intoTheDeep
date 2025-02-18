@@ -29,14 +29,16 @@ public class Brazotest extends OpMode {
 
     @Override
     public void loop() {
+        hardware.updateArmPosition();
+
         if (gamepad1.a) {
             brazo = true;
-            brazoAct1 = hardware.brazoToPosSmoothAction(-375, 1, -250);
+            brazoAct1 = hardware.brazoToPosAction(0);
         }
 
         if (gamepad1.b) {
             brazo = false;
-            brazoAct2 = hardware.brazoToPosSmoothAction(0, 0.5, p1_arriba);
+            brazoAct2 = hardware.brazoToPosAction(300);
         }
 
         if (brazo) {
@@ -51,6 +53,6 @@ public class Brazotest extends OpMode {
 
         telemetry.addData("state", brazo);
         telemetry.addData("target", hardware.brazoTargetPos);
-        telemetry.addData("pos", hardware.virtual.getCurrentPosition());
+        telemetry.addData("pos", hardware.brazoPRelative);
     }
 }
