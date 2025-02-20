@@ -38,7 +38,7 @@ public class Specimens extends LinearOpMode {
                         hardware.posicion_inicialAction()
                 ))
                 .afterTime(1.8,hardware.dropS_Action())
-                .strafeToConstantHeading(new Vector2d(-5,-36))
+                .strafeToConstantHeading(new Vector2d(-5,-39))
                 .waitSeconds(1)
 
 
@@ -71,11 +71,11 @@ public class Specimens extends LinearOpMode {
                 .strafeToConstantHeading(new Vector2d(50.5,-45))
                 .strafeToLinearHeading(new Vector2d(25,-60),Math.toRadians(90))
                 .afterTime(0,hardware.pickS_Action())
-                .afterTime(.2,new ParallelAction(
+                .afterTime(.4,new ParallelAction(
 
                         hardware.elevToPosAction(-1800)
                 ))
-                .waitSeconds(.4)
+                .waitSeconds(.6)
                 .strafeToLinearHeading(new Vector2d(-4,-35),Math.toRadians(270))
                 .afterTime(0,hardware.elevToPosAction(-900))
                 .waitSeconds(1)

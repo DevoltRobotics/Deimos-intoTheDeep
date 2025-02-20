@@ -47,7 +47,7 @@ public class Hardware {
     public Limelight3A limelight;
 
     public static PIDFController.PIDCoefficients brazoCoeffs = new PIDFController.PIDCoefficients(
-            0.002, 0, 0
+            0.003, 0, 0
     );
 
     public static double armKCos = 0.1;
@@ -285,6 +285,7 @@ public class Hardware {
 
     class BrazoToPosOnceAction implements Action {
         int ticks;
+        boolean executed = false;
 
         public BrazoToPosOnceAction(int ticks) {
             this.ticks = ticks;
@@ -292,7 +293,10 @@ public class Hardware {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            brazoTargetPos = ticks; // set target position and end action
+            if (!executed) {
+                brazoTargetPos = ticks;
+                executed = true;
+            }
             return true;
         }
     }
@@ -307,7 +311,7 @@ public class Hardware {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             brazoTargetPos = ticks; // set target position and end action
-            return false;
+            return true;
         }
     }
 
@@ -364,7 +368,7 @@ public class Hardware {
     }
 
     public ServoAction abrirAction() {
-        return new ServoAction(garra, 0.1);
+        return new ServoAction(garra, 0.2);
     }
 
     public ServoAction cerrarAction() {
@@ -409,7 +413,7 @@ public class Hardware {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             elevTargetPos = ticks; // set target position and end action
-            return true;
+            return false;
         }
     }
 
@@ -443,24 +447,15 @@ public class Hardware {
     class BrazoUpdateAction implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            // Actualiza la posición actual del brazo
+            updateArmPosition();
 
-            /*if (brazoTargetPos > BrazoP) {
-                brazoControllerDown.targetPosition = Range.clip(brazoTargetPos, -360, 360);
-
-                BrazoP = VirtualPos.getVoltage() / 3.3 * 360;
-                double brazoD = brazoControllerDown.update(BrazoP);
-                Brazo.setPower(brazoD);
-            }*/
-
-            /*if (brazoTargetPos < BrazoP) {*/
-                // Gravity compensation using cosine of the current angle (convert to radians)
-                double gravityComp = armKCos * Math.cos(Math.toRadians(brazoPRelative));
-
-                brazoController.targetPosition = brazoTargetPos;
-                double brazo = brazoController.update(brazoPRelative);
-                Brazo.setPower(-brazo + gravityComp);
-            // }
-            return true; // ejecutar por siempre y para siempre
+            double gravityComp = armKCos * Math.cos(Math.toRadians(brazoPRelative));
+            brazoController.targetPosition = brazoTargetPos;
+            double brazo = brazoController.update(brazoPRelative);
+            Brazo.setPower(-brazo + gravityComp);
+            return true; // acción continua
         }
     }
+
 }

@@ -33,12 +33,12 @@ public class Brazotest extends OpMode {
 
         if (gamepad1.a) {
             brazo = true;
-            brazoAct1 = hardware.brazoToPosAction(0);
+            brazoAct1 = hardware.brazoToPosOnceAction(0);
         }
 
         if (gamepad1.b) {
             brazo = false;
-            brazoAct2 = hardware.brazoToPosAction(300);
+            brazoAct2 = hardware.brazoToPosOnceAction(275);
         }
 
         if (brazo) {

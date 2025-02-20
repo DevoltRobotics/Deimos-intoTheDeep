@@ -20,13 +20,12 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 18)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(8,-65,Math.toRadians(90)))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-20,-5,Math.toRadians(180)))
 
 
-                        .splineToConstantHeading(new Vector2d(-5,-38),Math.toRadians(180))
-                        .strafeToConstantHeading(new Vector2d(25,-40))
-                        .splineToConstantHeading(new Vector2d(48,-7),Math.toRadians(0))
-                        .build());
+                .strafeToConstantHeading(new Vector2d(-35,-5))
+                .strafeToLinearHeading(new Vector2d(-51,-49),Math.toRadians(45))
+                .build());
 
 
 

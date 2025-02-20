@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.PinpointDrive;
 import org.opencv.core.Mat;
 
-@Autonomous(name = "Sample_centro",group = "###")
-public class Samples extends LinearOpMode {
+@Autonomous(name = "Sample_derecha",group = "###")
+public class Samples_derecha extends LinearOpMode {
 
     PinpointDrive mecanumDrive;
     Hardware hardware;
@@ -127,7 +127,7 @@ public class Samples extends LinearOpMode {
                         hardware.elevToPosAction(-45),
                         hardware.brazoToPosOnceAction(0)
                 ))
-                .splineToLinearHeading(new Pose2d(-23, 2, Math.toRadians(0)), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(-22.5, -6, Math.toRadians(0)), Math.toRadians(0))
                 .afterTime(0, new ParallelAction(
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
@@ -145,7 +145,7 @@ public class Samples extends LinearOpMode {
                         hardware.mantenerAction()
                 ))
                 .afterTime(3, hardware.abrirAction())
-                .strafeToConstantHeading(new Vector2d(-35,-5))
+                .strafeToConstantHeading(new Vector2d(-35,-6))
                 .strafeToLinearHeading(new Vector2d(-51,-49),Math.toRadians(45))
                 .afterTime(1,hardware.elevToPosAction(0))
                 .splineToLinearHeading(new Pose2d(-22, -5, Math.toRadians(180)), Math.toRadians(0))
@@ -155,17 +155,17 @@ public class Samples extends LinearOpMode {
 
 
         hardware.SARelev();
-            Actions.runBlocking(new ParallelAction(
-                    hardware.brazoUpdateAction(),
-                    hardware.elevUpdateAction(), // update elevador constantemente
-                    auto,
+        Actions.runBlocking(new ParallelAction(
+                hardware.brazoUpdateAction(),
+                hardware.elevUpdateAction(), // update elevador constantemente
+                auto,
 
-                    telemetryPacket -> {
-                        telemetry.addData("brazo", hardware.brazoTargetPos);
-                        telemetry.update();
-                        return true;
-                    }
-            ));
+                telemetryPacket -> {
+                    telemetry.addData("brazo", hardware.brazoTargetPos);
+                    telemetry.update();
+                    return true;
+                }
+        ));
 
     }
 }
