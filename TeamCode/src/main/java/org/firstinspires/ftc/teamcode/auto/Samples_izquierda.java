@@ -108,7 +108,7 @@ public class Samples_izquierda extends LinearOpMode {
 
                 //agarrar 3
                 .splineToLinearHeading(new Pose2d(-45, -52, Math.toRadians(135)), Math.toRadians(180), new TranslationalVelConstraint(20))
-                .strafeToConstantHeading(new Vector2d(-54, -38), null, new ProfileAccelConstraint(-10, 10))
+                .strafeToConstantHeading(new Vector2d(-55, -37), null, new ProfileAccelConstraint(-10, 10))
 
                 .afterTime(0, new ParallelAction(
                         hardware.posicion_inicialAction(), // carpus
@@ -127,7 +127,7 @@ public class Samples_izquierda extends LinearOpMode {
                         hardware.elevToPosAction(-45),
                         hardware.brazoToPosOnceAction(0)
                 ))
-                .splineToLinearHeading(new Pose2d(-23, 13, Math.toRadians(0)), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(-22, 13, Math.toRadians(0)), Math.toRadians(0))
                 .afterTime(0, new ParallelAction(
                         hardware.inclinadoAction(),
                         hardware.shuparAction(),
@@ -140,11 +140,10 @@ public class Samples_izquierda extends LinearOpMode {
                 ))
                 .afterTime(1.5, hardware.cerrarAction())
                 .afterTime(1.8, new ParallelAction(
-                        hardware.brazoToPosOnceAction(280),
-                        hardware.elevToPosAction(-1650),
-                        hardware.mantenerAction()
+                        hardware.elevToPosAction(-1650)
                 ))
-                .afterTime(3, hardware.abrirAction())
+                .afterTime(2.3,hardware.brazoToPosOnceAction(255))
+                .afterTime(3.2, hardware.abrirAction())
                // .strafeToConstantHeading(new Vector2d(-35,-5))
                 .strafeToLinearHeading(new Vector2d(-53,-47),Math.toRadians(45))
                 .afterTime(1,hardware.elevToPosAction(0))

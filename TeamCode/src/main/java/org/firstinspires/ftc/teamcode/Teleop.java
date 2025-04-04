@@ -7,9 +7,9 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-
 
 @TeleOp(name = "teleop", group = "##")
 public class Teleop extends OpMode {
@@ -22,6 +22,8 @@ public class Teleop extends OpMode {
     Action brazodownsmoothaction ;
     Action brazoupsmoothaction;
 
+    ElapsedTime resetArmTimer = new ElapsedTime();
+    boolean hasResetArm = false;
 
     enum virtual {
         manual,
@@ -57,9 +59,20 @@ public class Teleop extends OpMode {
     }
 
     @Override
-    public void loop() {
-        hardware.BrazoP = hardware.VirtualPos.getVoltage() / 3.3 * 360;
+    public void start() {
+        resetArmTimer.reset();
+    }
 
+    @Override
+    public void loop() {
+        if(resetArmTimer.seconds() <= 1.2) {
+            hardware.Brazo.setPower(0.5);
+        } else if(!hasResetArm) {
+            hasResetArm = true;
+            hardware.brazoPRelative = 0;
+        }
+
+        hardware.BrazoP = hardware.VirtualPos.getVoltage() / 3.3 * 360;
 
             LLResult result = hardware.limelight.getLatestResult();
             if (result != null) {
@@ -128,8 +141,9 @@ public class Teleop extends OpMode {
                 break;
             case dejar:
 
+                if (hardware.elev2.getCurrentPosition() <= -1000) {
                     brazoupsmoothaction.run(null);
-
+                }
                 break;
             case agarrar:
                 brazodownsmoothaction.run(null);
@@ -153,7 +167,7 @@ public class Teleop extends OpMode {
         } else {
             if (gamepad2.dpad_up) {
                 liftstate = lift.dejar;
-                brazoupsmoothaction = hardware.brazoToPosAction(280);
+                brazoupsmoothaction = hardware.brazoToPosAction(265);
 
             } else if (gamepad2.dpad_down) {
                 liftstate = lift.agarrar;
@@ -163,7 +177,10 @@ public class Teleop extends OpMode {
 
 
         elevUpdateAction.run(null);
-        brazoUpdateAction.run(null);
+        if(hasResetArm) {
+            hardware.updateArmPosition();
+            brazoUpdateAction.run(null);
+        }
 
         double trigger = gamepad1.left_trigger;
         if (gamepad1.right_trigger > 0.35) {
@@ -183,10 +200,9 @@ public class Teleop extends OpMode {
             mecanumDrive.pose = (new Pose2d(0, 0, 0));
         }
 
-        hardware.updateArmPosition();
-
         telemetry.addData("imu", Math.toDegrees(mecanumDrive.pose.heading.toDouble()));
         telemetry.addData("elevador", hardware.elevTargetPos);
+
         telemetry.addData("extendo1", hardware.Ext1.getPosition());
         telemetry.addData("extendo2", hardware.Ext2.getPosition());
         telemetry.addData("brazotarget",hardware.brazoTargetPos);

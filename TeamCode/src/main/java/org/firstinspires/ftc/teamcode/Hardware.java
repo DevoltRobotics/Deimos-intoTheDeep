@@ -47,10 +47,10 @@ public class Hardware {
     public Limelight3A limelight;
 
     public static PIDFController.PIDCoefficients brazoCoeffs = new PIDFController.PIDCoefficients(
-            0.003, 0, 0
+            0.0032, 0, 0
     );
 
-    public static double armKCos = 0.1;
+    public static double armKCos = 0.05;
     public PIDFController brazoController = new PIDFController(brazoCoeffs); //TODO PARA QUE QUIERES UN PID EN UN SERVO PENDEJO
 
     public static PIDFController.PIDCoefficients brazoCoeffsDown = new PIDFController.PIDCoefficients(
@@ -103,7 +103,6 @@ public class Hardware {
 
         elev1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elev2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        elev1.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
 
@@ -171,25 +170,25 @@ public class Hardware {
     }
 
     public void Extend() {
-        Ext1.setPosition(0.7);
-        Ext2.setPosition(0.7);
+        Ext1.setPosition(0.45);
+        Ext2.setPosition(0.55);
     }
 
     public Action ExtendAction() {
         return new ParallelAction(
-                new ServoAction(Ext1, 0.7),
-                new ServoAction(Ext2, 0.7)
+                new ServoAction(Ext1, 0.45),
+                new ServoAction(Ext2, 0.55)
         );
     }
 
     public void Rectract() {
-        Ext1.setPosition(0.4);
+        Ext1.setPosition(0);
         Ext2.setPosition(1);
     }
 
     public Action RetractAction() {
         return new ParallelAction(
-                new ServoAction(Ext1, 0.4),
+                new ServoAction(Ext1, 0),
                 new ServoAction(Ext2, 1)
         );
     }
@@ -360,7 +359,7 @@ public class Hardware {
 
     // PENE D MONO
     public void abrir() {
-        garra.setPosition(0.1);
+        garra.setPosition(0.2);
     }
 
     public void cerrar() {
@@ -450,7 +449,7 @@ public class Hardware {
             // Actualiza la posición actual del brazo
             updateArmPosition();
 
-            double gravityComp = armKCos * Math.cos(Math.toRadians(brazoPRelative));
+            double gravityComp = armKCos * Math.cos(Math.toRadians(brazoPRelative -20));
             brazoController.targetPosition = brazoTargetPos;
             double brazo = brazoController.update(brazoPRelative);
             Brazo.setPower(-brazo + gravityComp);
