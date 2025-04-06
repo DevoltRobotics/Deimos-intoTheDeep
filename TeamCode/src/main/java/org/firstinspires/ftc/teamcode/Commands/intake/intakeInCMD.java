@@ -17,8 +17,6 @@ public class intakeInCMD extends CommandBase {
         intakeSubsystem.In();
     }
 
-
-
     @Override
     public void end(boolean interrupted) {
         intakeSubsystem.Stop();

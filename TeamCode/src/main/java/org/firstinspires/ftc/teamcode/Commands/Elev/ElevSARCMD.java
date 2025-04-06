@@ -18,7 +18,7 @@ public class ElevSARCMD extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 
 }

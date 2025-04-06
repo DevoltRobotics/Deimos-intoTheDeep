@@ -11,8 +11,7 @@ import org.firstinspires.ftc.teamcode.Config.PIDFController;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-    public DcMotor ElevL,ElevR;
-    public PIDFController controller;
+    public DcMotor ElevL, ElevR;
 
     public static PIDFController.PIDCoefficients rielesCoeffs = new PIDFController.PIDCoefficients(
             0.016, 0, 0
@@ -22,13 +21,15 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public int ticks;
 
-    public ElevatorSubsystem(final HardwareMap hMap){
-        ElevL = hMap.get(DcMotor.class,"ElevL");
-        ElevR = hMap.get(DcMotor.class,"ElevR");
+    public static final int ScorePos = 1400;
+    public static final int TransferPos = 0;
+
+    public ElevatorSubsystem(final HardwareMap hMap) {
+        ElevL = hMap.get(DcMotor.class, "ElevL");
+        ElevR = hMap.get(DcMotor.class, "ElevR");
 
         ElevL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         ElevR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        ElevL.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void SARelev() {
@@ -36,25 +37,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         ElevL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         ElevR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         ElevR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
     }
-
-
-
-
 
     @Override
     public void periodic() {
+        elevController.targetPosition = Range.clip(ticks, 0, 1500);
 
-
-
-            elevController.targetPosition = Range.clip(ticks, -1650, 0);
-
-            double ElevD = elevController.update(ElevL.getCurrentPosition());
-            ElevR.setPower(-ElevD);
-            ElevL.setPower(ElevD);
-
-
+        double ElevD = elevController.update(ElevR.getCurrentPosition());
+        ElevR.setPower(ElevD);
+        ElevL.setPower(-ElevD);
     }
-
 }

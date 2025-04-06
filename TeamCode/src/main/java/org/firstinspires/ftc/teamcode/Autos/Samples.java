@@ -1,4 +1,13 @@
 package org.firstinspires.ftc.teamcode.Autos;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.SamplesStartPose;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.parkControlPose;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.parkPose;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.pickup1Pose;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.pickup2Pose;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.pickup3Pose;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.scorePose;
+
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -11,8 +20,17 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Commands.Arm.ArmToPoseCMD;
+import org.firstinspires.ftc.teamcode.Commands.Claw.ClawCloseCMD;
+import org.firstinspires.ftc.teamcode.Commands.Claw.ClawOpenCMD;
+import org.firstinspires.ftc.teamcode.Commands.Elev.ElevSARCMD;
+import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPoseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Extendo.ExtendCMD;
 import org.firstinspires.ftc.teamcode.Commands.Extendo.RetractCMD;
+import org.firstinspires.ftc.teamcode.Commands.intake.intakeInCMD;
+import org.firstinspires.ftc.teamcode.Commands.wrist.wristDownCMD;
+import org.firstinspires.ftc.teamcode.Commands.wrist.wristUpCMD;
+import org.firstinspires.ftc.teamcode.Config.DrivePos;
 import org.firstinspires.ftc.teamcode.Config.OpModeCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ClawSubsystem;
@@ -28,40 +46,16 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 public class Samples extends OpModeCommand {
 
 
-    PedroSubsystem pedroSubsystem;
-    ExtendoSubsystem extendoSubsystem;
-    ClawSubsystem clawSubsystem;
-    ElevatorSubsystem elevatorSubsystem;
-    IntakeSubsystem intakeSubsystem;
-    ArmSubsystem armSubsystem;
-    WristSubsystem wristSubsystem;
 
 
-
-
-    private final Pose startPose = new Pose(9, 111, Math.toRadians(270));
-
-    private final Pose scorePose = new Pose(16.37, 127.1, Math.toRadians(315));
-
-    private final Pose pickup1Pose = new Pose(25.47, 125, Math.toRadians(-17));
-
-    private final Pose pickup2Pose = new Pose(26.51, 129.18, Math.toRadians(13));
-
-    private final Pose pickup3Pose = new Pose(34.05, 137.24, Math.toRadians(30));
-
-    private final Pose parkPose = new Pose(66.02, 99.03, Math.toRadians(90));
-
-    private final Pose parkControlPose = new Pose(55.62, 138.8, Math.toRadians(90));
 
     private Path scorePreload, park;
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
 
 
     public void createPaths() {
-
-        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
-
+        scorePreload = new Path(new BezierLine(new Point(SamplesStartPose), new Point(scorePose)));
+        scorePreload.setLinearHeadingInterpolation(SamplesStartPose.getHeading(), scorePose.getHeading());
 
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
@@ -102,42 +96,56 @@ public class Samples extends OpModeCommand {
 
     @Override
     public void initialize() {
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-
-        follower.setStartingPose(startPose);
+        follower.setStartingPose(SamplesStartPose);
 
         createPaths();
 
-        register(
-                pedroSubsystem = new PedroSubsystem(follower),
-                extendoSubsystem = new ExtendoSubsystem(hardwareMap),
-                clawSubsystem = new ClawSubsystem(hardwareMap),
-                elevatorSubsystem = new ElevatorSubsystem(hardwareMap),
-                intakeSubsystem = new IntakeSubsystem(hardwareMap),
-                armSubsystem = new ArmSubsystem(hardwareMap),
-                wristSubsystem = new WristSubsystem(hardwareMap)
-
-
-        );
 
         schedule(
-                pedroSubsystem.followPathCmd(scorePreload).andThen(
+                new ElevSARCMD(elevatorSubsystem) .andThen(
+
+                new ParallelDeadlineGroup(
+                pedroSubsystem.followPathCmd(scorePreload),
+                new ClawCloseCMD(clawSubsystem),
+                new ElevToPoseCMD(elevatorSubsystem,elevatorSubsystem.ScorePos),
+                new ArmToPoseCMD(armSubsystem, armSubsystem.ScorePos),
+                new wristUpCMD(wristSubsystem)
+
+
+                )).andThen(
                         new ParallelDeadlineGroup(
                                 pedroSubsystem.followPathCmd(grabPickup1),
-
+                                new ClawOpenCMD(clawSubsystem),
+                                new ExtendCMD(extendoSubsystem),
+                                new intakeInCMD(intakeSubsystem),
+                                new wristDownCMD(wristSubsystem),
+                                new ElevToPoseCMD(elevatorSubsystem,elevatorSubsystem.TransferPos),
                                 new SequentialCommandGroup(
-                                        new WaitCommand(500),
-                                        new ExtendCMD(extendoSubsystem)
+                                        new WaitCommand(300),
+                                        new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
+                                        )
+                                )
+                ).andThen(new ParallelCommandGroup(
+                                pedroSubsystem.followPathCmd(scorePickup1),
+                                new RetractCMD(extendoSubsystem),
+                        new SequentialCommandGroup(
+                                new WaitCommand(600),
+                                new ParallelCommandGroup(
+                                        new ClawCloseCMD(clawSubsystem),
+                                        new SequentialCommandGroup(
+                                                new WaitCommand(500),
+                                                new ElevToPoseCMD(elevatorSubsystem,elevatorSubsystem.ScorePos),
+                                                new WaitCommand(800),
+                                                new ArmToPoseCMD(armSubsystem, armSubsystem.ScorePos)
+                                                )
                                 )
                         )
-                ).andThen(
-                        new ParallelDeadlineGroup(
-                                pedroSubsystem.followPathCmd(scorePickup1),
-                                new RetractCMD(extendoSubsystem)
-                        )
-                ).andThen(
+
+                )).andThen(
+                        new ParallelCommandGroup(
                         pedroSubsystem.followPathCmd(grabPickup2)
-                ).andThen(
+
+                        )).andThen(
                         pedroSubsystem.followPathCmd(scorePickup2)
                 ).andThen(
                         pedroSubsystem.followPathCmd(grabPickup3)

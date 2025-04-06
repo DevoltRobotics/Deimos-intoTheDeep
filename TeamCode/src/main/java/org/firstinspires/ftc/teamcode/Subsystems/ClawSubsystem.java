@@ -8,6 +8,7 @@ public class ClawSubsystem extends SubsystemBase {
 
     Servo claw;
 
+
     public ClawSubsystem(HardwareMap hMap){
         claw = hMap.get(Servo.class,"garra");
     }

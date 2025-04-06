@@ -23,11 +23,12 @@ public class ArmSubsystem extends SubsystemBase {
 
     public double brazoPRelative;
 
-    public int ticks;
+    public double ticks;
 
     public double brazoTargetPos;
 
-    public int scorePos = 280;
+    public int ScorePos = 265;
+    public int TransferPos = 0;
 
     public ArmSubsystem(HardwareMap hMap) {
         arm = hMap.get(CRServo.class, "brazo");

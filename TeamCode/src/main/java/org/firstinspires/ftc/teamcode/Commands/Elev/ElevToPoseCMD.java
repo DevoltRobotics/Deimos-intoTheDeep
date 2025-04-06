@@ -20,4 +20,8 @@ public class ElevToPoseCMD extends CommandBase {
         subsystem.ticks = target;
     }
 
+    @Override
+    public boolean isFinished() {
+        return Math.abs(subsystem.elevController.lastError) < 5;
+    }
 }
