@@ -21,4 +21,9 @@ public class ElevToPosTOp extends CommandBase {
         subsystem.ticks += -gamepad.left_stick_y * 15;
     }
 
+    @Override
+    public void execute() {
+        subsystem.ticks += -gamepad.left_stick_y * 15;
+    }
+
 }

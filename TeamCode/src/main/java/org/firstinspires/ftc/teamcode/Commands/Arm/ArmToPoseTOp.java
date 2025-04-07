@@ -21,4 +21,9 @@ public class ArmToPoseTOp extends CommandBase {
         subsystem.ticks += (gamepad.left_trigger - gamepad.right_trigger) * 3;
     }
 
+    @Override
+    public void execute(){
+        subsystem.ticks += (gamepad.left_trigger - gamepad.right_trigger) * 3;
+    }
+
 }

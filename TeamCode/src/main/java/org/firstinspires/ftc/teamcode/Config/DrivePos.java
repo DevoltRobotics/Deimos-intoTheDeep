@@ -26,6 +26,7 @@ public class DrivePos {
     public static Pose sampleParkControlPose = new Pose(55.62, 138.8, Math.toRadians(90));
 
 
+
     //Autonomo Specimen
     public static Pose specimenStartPose = new Pose(9, 56, Math.toRadians(180));
 
@@ -48,6 +49,11 @@ public class DrivePos {
     public static Pose specimenGrabSpecimen = new Pose(38, 66, Math.toRadians(0));
 
     public static Pose specimenPark = new Pose(16, 47, Math.toRadians(-135));
+
+    //Teleop pathfinding
+
+    public static Pose scoreControl = new Pose(85.9, 122, Math.toRadians(315));
+
 
 }
 
