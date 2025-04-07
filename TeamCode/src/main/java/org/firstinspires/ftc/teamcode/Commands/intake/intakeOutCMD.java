@@ -17,10 +17,6 @@ public class intakeOutCMD extends CommandBase {
         intakeSubsystem.Out();
     }
 
-    @Override
-    public void end(boolean interrupted) {
-        intakeSubsystem.Stop();
-    }
 
     @Override
     public boolean isFinished() {

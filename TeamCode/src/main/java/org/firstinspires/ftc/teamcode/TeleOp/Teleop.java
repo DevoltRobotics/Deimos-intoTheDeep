@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.Commands.Arm.ArmToPoseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Arm.ArmToPoseTOp;
 import org.firstinspires.ftc.teamcode.Commands.Claw.ClawCloseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Claw.ClawOpenCMD;
+import org.firstinspires.ftc.teamcode.Commands.Compund.TransferCMD;
 import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPosTOp;
 import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPoseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Extendo.ExtendCMD;
@@ -95,7 +96,7 @@ public class Teleop extends OpModeCommand {
                 Garra, GamepadKeys.Button.RIGHT_BUMPER
         );
 
-        ClawCLosed.whenPressed(new ClawCloseCMD(clawSubsystem));
+        ClawCLosed.whenPressed(new TransferCMD(extendoSubsystem, wristSubsystem, clawSubsystem));
         Button Extend = new GamepadButton(
                 Garra, GamepadKeys.Button.DPAD_RIGHT
         );
@@ -118,7 +119,7 @@ public class Teleop extends OpModeCommand {
         ));
 
         Button TransferG = new GamepadButton(
-                Garra, GamepadKeys.Button.DPAD_DOWN
+                Garra,GamepadKeys.Button.DPAD_DOWN
         );
 
         TransferG.whenPressed(new ParallelCommandGroup(

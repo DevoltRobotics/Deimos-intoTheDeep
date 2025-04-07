@@ -18,4 +18,9 @@ public class ExtendCMD extends CommandBase {
         subsystem.Extend();
     }
 
+    @Override
+    public boolean isFinished(){
+        return true;
+    }
+
 }

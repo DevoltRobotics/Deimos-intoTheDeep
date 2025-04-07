@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.ClawSubsystem;
 public class ClawCloseCMD extends CommandBase {
 
     ClawSubsystem subsystem;
+
     public ClawCloseCMD(ClawSubsystem subsystem){
         this.subsystem = subsystem;
         addRequirements(subsystem);
@@ -16,5 +17,11 @@ public class ClawCloseCMD extends CommandBase {
     public void initialize(){
         subsystem.close();
     }
+
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
+
 
 }

@@ -20,4 +20,9 @@ public class ArmToPoseCMD extends CommandBase {
     public void initialize() {
         subsystem.ticks = targetPos;
     }
+
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
 }

@@ -22,7 +22,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public int ticks;
 
     public static final int ScorePos = 1400;
-    public static final int TransferPos = 0;
+    public static final int TransferPos = 50;
 
     public ElevatorSubsystem(final HardwareMap hMap) {
         ElevL = hMap.get(DcMotor.class, "ElevL");

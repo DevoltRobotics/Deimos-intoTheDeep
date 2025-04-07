@@ -22,6 +22,6 @@ public class ElevToPoseCMD extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return Math.abs(subsystem.elevController.lastError) < 5;
+        return Math.abs(subsystem.elevController.lastError) < 10;
     }
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -7,21 +8,22 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Config.PIDFController;
 
+@Config
 public class ArmSubsystem extends SubsystemBase {
     public CRServo arm;
     public AnalogInput ArmPos;
 
     public static PIDFController.PIDCoefficients brazoCoeffs = new PIDFController.PIDCoefficients(
-            0.0032, 0, 0
+            0.003, 0, 0
     );
 
-    public static double armKCos = 0.05;
+    public static double armKCos = 0.02;
     public PIDFController brazoController = new PIDFController(brazoCoeffs);
 
     public double BrazoP = 0;
     public double lastBrazoP;
 
-    public double brazoPRelative;
+    public double brazoPRelative = -15;
 
     public double ticks;
 

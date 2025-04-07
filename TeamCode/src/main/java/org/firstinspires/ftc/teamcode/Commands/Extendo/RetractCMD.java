@@ -17,4 +17,10 @@ public class RetractCMD extends CommandBase {
     public void execute(){
         subsystem.Retract();
     }
+
+
+    @Override
+    public boolean isFinished(){
+        return true;
+    }
 }

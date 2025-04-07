@@ -18,6 +18,8 @@ public class wristUpCMD extends CommandBase {
         subsystem.wristUp();
     }
 
-
-
+    @Override
+    public boolean isFinished(){
+     return true;
+    }
 }
