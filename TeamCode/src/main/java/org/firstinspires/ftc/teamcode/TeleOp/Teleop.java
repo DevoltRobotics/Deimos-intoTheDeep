@@ -16,6 +16,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -41,36 +42,25 @@ public class Teleop extends OpModeCommand {
 
     GamepadEx Chasis;
     GamepadEx Garra;
-    Pose Pose = new Pose(0,0,0);
-    PathChain path = follower.pathBuilder().build();
+
 
 
     @Override
     public void initialize() {
         Chasis = new GamepadEx(gamepad1);
         Garra = new GamepadEx(gamepad2);
-        new RunCommand(()->{
-            if (PedroSubsystem.EndPose == null){
-                follower.setStartingPose(Pose);
-            }else {
-                follower.setStartingPose(PedroSubsystem.EndPose);
-            }
-        });
+        follower.setStartingPose(PedroSubsystem.EndPose);
+
         CommandScheduler.getInstance().setDefaultCommand(pedroSubsystem, pedroSubsystem.fieldCentricCmd(gamepad1));
         Button ScorePos = new GamepadButton(
           Chasis, GamepadKeys.Button.DPAD_UP
         );
         ScorePos.whenPressed(new InstantCommand(() -> {
-            if (follower.getXOffset()>= 76 || follower.getXOffset()<= 48.2 || follower.getYOffset() >= 104.5){
-                path = follower.pathBuilder()
+                 PathChain path = follower.pathBuilder()
                     .addPath(new BezierLine(new Point(follower.getPose()), new Point(sampleScorePose)))
                     .setLinearHeadingInterpolation(follower.getPose().getHeading(), sampleScorePose.getHeading())
-                    .build();} else if (follower.getXOffset()< 76 && follower.getXOffset() > 48.2 && follower.getYOffset() < 104.5){
-                path = follower.pathBuilder()
-                        .addPath(new BezierCurve(new Point(follower.getPose()),new Point(scoreControl), new Point(sampleScorePose)))
-                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), sampleScorePose.getHeading())
-                        .build();
-            }
+                    .build();
+
             pedroSubsystem.followPathCmd(path).schedule();
         }));
         Button CancelPath=new  GamepadButton(

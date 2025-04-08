@@ -13,12 +13,17 @@ import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenPark;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenScorePose;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenStartPose;
 
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPoseCMD;
+import org.firstinspires.ftc.teamcode.Commands.Redentor.RedentorCloseCMD;
+import org.firstinspires.ftc.teamcode.Commands.Redentor.RedentorOpenCMD;
 import org.firstinspires.ftc.teamcode.Config.OpModeCommand;
 
 @Autonomous(name = "Specimen", group = "##")
@@ -71,7 +76,13 @@ public class Specimen extends OpModeCommand {
         createPaths();
 
         schedule(
-                pedroSubsystem.followPathCmd(scorePreload)
+
+                new RedentorCloseCMD(redentorSubsystem),
+                        new ParallelDeadlineGroup(
+                                pedroSubsystem.followPathCmd(scorePreload),
+                                new ElevToPoseCMD(elevatorSubsystem, 1500)
+                        ),
+                new RedentorOpenCMD(redentorSubsystem)
                         .andThen(pedroSubsystem.followPathCmd(sample1))
                         .andThen(pedroSubsystem.followPathCmd(leaveSample1))
                         .andThen(pedroSubsystem.followPathCmd(sample2))

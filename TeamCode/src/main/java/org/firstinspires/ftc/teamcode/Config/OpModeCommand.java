@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.ElevatorSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.PedroSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.RedentorSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.WristSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
@@ -27,6 +28,7 @@ public abstract class OpModeCommand extends OpMode {
     public IntakeSubsystem intakeSubsystem;
     public ArmSubsystem armSubsystem;
     public WristSubsystem wristSubsystem;
+    public RedentorSubsystem redentorSubsystem;
 
     //reinicia la lista de comandos
     public void reset() {
@@ -59,7 +61,8 @@ public abstract class OpModeCommand extends OpMode {
                 elevatorSubsystem = new ElevatorSubsystem(hardwareMap),
                 intakeSubsystem = new IntakeSubsystem(hardwareMap),
                 armSubsystem = new ArmSubsystem(hardwareMap),
-                wristSubsystem = new WristSubsystem(hardwareMap)
+                wristSubsystem = new WristSubsystem(hardwareMap),
+                redentorSubsystem = new RedentorSubsystem(hardwareMap)
         );
 
         initialize();

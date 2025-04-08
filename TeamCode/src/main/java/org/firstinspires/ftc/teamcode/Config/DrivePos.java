@@ -19,7 +19,7 @@ public class DrivePos {
 
     public static Pose samplePickup2Pose = new Pose(26.51, 129.18, Math.toRadians(13));
 
-    public static Pose samplePickup3Pose = new Pose(29.5, 134.8, Math.toRadians(30));
+    public static Pose samplePickup3Pose = new Pose(30.5, 134.8, Math.toRadians(30));
 
     public static Pose sampleParkPose = new Pose(66.02, 99.03, Math.toRadians(90));
 
@@ -30,7 +30,7 @@ public class DrivePos {
     //Autonomo Specimen
     public static Pose specimenStartPose = new Pose(9, 56, Math.toRadians(180));
 
-    public static Pose specimenScorePose = new Pose(38, 66, Math.toRadians(180));
+    public static Pose specimenScorePose = new Pose(36, 66, Math.toRadians(180));
 
     public static Pose specimenGoToSample1 = new Pose(48, 34, Math.toRadians(90));
     public static Pose specimenGoToSample1Control = new Pose(22, 40);
@@ -41,12 +41,12 @@ public class DrivePos {
 
     public static Pose specimenLeaveSample2 = new Pose(28, 15, Math.toRadians(55));
 
-    public static Pose specimenGoToSample3 = new Pose(57, 8, Math.toRadians(0));
+    public static Pose specimenGoToSample3 = new Pose(57, 12, Math.toRadians(0));
     public static Pose specimenGoToSample3Control = new Pose(51, 23);
 
     public static Pose specimenLeaveSample3 = new Pose(11, 8, Math.toRadians(0));
 
-    public static Pose specimenGrabSpecimen = new Pose(38, 66, Math.toRadians(0));
+    public static Pose specimenGrabSpecimen = new Pose(9, 36, Math.toRadians(0));
 
     public static Pose specimenPark = new Pose(16, 47, Math.toRadians(-135));
 

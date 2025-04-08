@@ -101,19 +101,19 @@ public class Samples extends OpModeCommand {
                                 new ParallelDeadlineGroup(
                                         pedroSubsystem.followPathCmd(scorePreload),
                                         new ExtendCMD(extendoSubsystem),
+                                        new intakeInCMD(intakeSubsystem),
                                         new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem)
 
 
 
                                 )).andThen(
                                 new SequentialCommandGroup(
-                                        new InstantCommand(() -> follower.setMaxPower(0.38)),
+                                        new InstantCommand(() -> follower.setMaxPower(0.7)),
+
 
                                         new ParallelDeadlineGroup(
                                                 pedroSubsystem.followPathCmd(grabPickup1),
-
-                                                new intakeInCMD(intakeSubsystem),
-                                                new wristDownCMD(wristSubsystem),
+                                        new wristDownCMD(wristSubsystem),
                                                 new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
                                                 new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
                                         ),
@@ -122,20 +122,20 @@ public class Samples extends OpModeCommand {
                                 )
                         ).andThen(new ParallelCommandGroup(
                                 pedroSubsystem.followPathCmd(scorePickup1),
+                                new InstantCommand(()->new intakeKeepCMD(intakeSubsystem)
+                                        ),
                                 new SequentialCommandGroup(
                                         new TransferCMD(extendoSubsystem,wristSubsystem,clawSubsystem),
-                                        new intakeKeepCMD(intakeSubsystem),
                                         new WaitCommand(100),
                                         new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem),
                                         new ExtendCMD(extendoSubsystem)
                                 ),
-                                new WaitCommand(2000)
+                                new WaitCommand(1800)
                         )).andThen(
                                 new SequentialCommandGroup(
-                                        new InstantCommand(()-> follower.setMaxPower(0.38)),
+                                        new InstantCommand(()-> follower.setMaxPower(0.7)),
                                 new ParallelDeadlineGroup(
                                         pedroSubsystem.followPathCmd(grabPickup2),
-                                        new intakeInCMD(intakeSubsystem),
                                         new wristDownCMD(wristSubsystem),
                                         new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
                                         new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
@@ -146,7 +146,6 @@ public class Samples extends OpModeCommand {
                                 pedroSubsystem.followPathCmd(scorePickup2),
                                new SequentialCommandGroup(
                                   new TransferCMD(extendoSubsystem,wristSubsystem,clawSubsystem),
-                                   new intakeKeepCMD(intakeSubsystem),
                                  new WaitCommand(100),
                                  new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem),
                                        new ExtendCMD(extendoSubsystem)
@@ -155,11 +154,10 @@ public class Samples extends OpModeCommand {
 
                         )).andThen(
                                 new SequentialCommandGroup(
-                                new InstantCommand(()-> follower.setMaxPower(0.38)),
+                                new InstantCommand(()-> follower.setMaxPower(0.7)),
                                 new ParallelDeadlineGroup(
-                                 new WaitCommand(2500),
+                                 new WaitCommand(2000),
                                 pedroSubsystem.followPathCmd(grabPickup3),
-                                        new intakeInCMD(intakeSubsystem),
                                         new wristDownCMD(wristSubsystem),
                                         new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
                                         new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
@@ -170,7 +168,6 @@ public class Samples extends OpModeCommand {
                                 pedroSubsystem.followPathCmd(scorePickup3),
                                 new SequentialCommandGroup(
                                         new TransferCMD(extendoSubsystem,wristSubsystem,clawSubsystem),
-                                        new intakeKeepCMD(intakeSubsystem),
                                         new WaitCommand(100),
                                         new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem),
                                         new ExtendCMD(extendoSubsystem)

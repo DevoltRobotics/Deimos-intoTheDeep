@@ -10,6 +10,7 @@ public class intakeKeepCMD extends CommandBase {
 
     public intakeKeepCMD(IntakeSubsystem subsystem){
         this.subsystem = subsystem;
+        addRequirements(subsystem);
     }
 
 
@@ -20,6 +21,6 @@ public class intakeKeepCMD extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return true;
+        return false;
     }
 }
