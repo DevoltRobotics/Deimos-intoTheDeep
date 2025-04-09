@@ -58,7 +58,8 @@ public class Teleop extends OpModeCommand {
         ScorePos.whenPressed(new InstantCommand(() -> {
                  PathChain path = follower.pathBuilder()
                     .addPath(new BezierLine(new Point(follower.getPose()), new Point(sampleScorePose)))
-                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), sampleScorePose.getHeading())
+                    .setTangentHeadingInterpolation()
+                         .setReversed(true)
                     .build();
 
             pedroSubsystem.followPathCmd(path).schedule();

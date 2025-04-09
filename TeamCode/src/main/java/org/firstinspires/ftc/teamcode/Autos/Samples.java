@@ -108,7 +108,7 @@ public class Samples extends OpModeCommand {
 
                                 )).andThen(
                                 new SequentialCommandGroup(
-                                        new InstantCommand(() -> follower.setMaxPower(0.7)),
+                                        new InstantCommand(() -> follower.setMaxPower(0.65)),
 
 
                                         new ParallelDeadlineGroup(
@@ -130,10 +130,10 @@ public class Samples extends OpModeCommand {
                                         new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem),
                                         new ExtendCMD(extendoSubsystem)
                                 ),
-                                new WaitCommand(1800)
+                                new WaitCommand(1200)
                         )).andThen(
                                 new SequentialCommandGroup(
-                                        new InstantCommand(()-> follower.setMaxPower(0.7)),
+                                        new InstantCommand(()-> follower.setMaxPower(0.65)),
                                 new ParallelDeadlineGroup(
                                         pedroSubsystem.followPathCmd(grabPickup2),
                                         new wristDownCMD(wristSubsystem),
@@ -154,7 +154,7 @@ public class Samples extends OpModeCommand {
 
                         )).andThen(
                                 new SequentialCommandGroup(
-                                new InstantCommand(()-> follower.setMaxPower(0.7)),
+                                new InstantCommand(()-> follower.setMaxPower(0.65)),
                                 new ParallelDeadlineGroup(
                                  new WaitCommand(2000),
                                 pedroSubsystem.followPathCmd(grabPickup3),
