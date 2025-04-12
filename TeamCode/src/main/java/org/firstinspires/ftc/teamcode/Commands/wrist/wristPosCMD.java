@@ -2,28 +2,26 @@ package org.firstinspires.ftc.teamcode.Commands.wrist;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.WristSubsystem;
 
-public class wristDownCMD extends CommandBase {
+public class wristPosCMD extends CommandBase {
 
-WristSubsystem subsystem;
-    public wristDownCMD(WristSubsystem subsystem){
+    WristSubsystem subsystem;
+    double pos;
+
+    public wristPosCMD(WristSubsystem subsystem, double pos){
         this.subsystem = subsystem;
+        this.pos = pos;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute(){
-        subsystem.wristDown();
+        subsystem.position(pos);
     }
 
     @Override
     public boolean isFinished(){
-        return true;
+     return true;
     }
-
-
-
 }
-

@@ -24,7 +24,7 @@ public class Crosshair_Example extends OpenCvPipeline {
 
     public Mat bitwiseANDMat = new Mat();
 
-    public static int erodeValue = ((int) (5));
+    public static int erodeValue = ((int) (10));
     public static int dilateValue = ((int) (10));
     private Mat element = null;
     private Mat bitwiseANDMatErodedDilated = new Mat();
@@ -33,11 +33,11 @@ public class Crosshair_Example extends OpenCvPipeline {
     private Mat hierarchy = new Mat();
 
     public static int minArea = 493;
-    public static int maxArea = 20000;
+    public static int maxArea = 30000;
     private ArrayList<MatOfPoint> contoursByArea = new ArrayList<>();
 
     public static int minRatio = 40;
-    public static int maxRatio = 70;
+    public static int maxRatio = 80;
     private ArrayList<MatOfPoint> contoursByAreaByRatio = new ArrayList<>();
     private MatOfPoint2f contoursByArea2f = new MatOfPoint2f();
 

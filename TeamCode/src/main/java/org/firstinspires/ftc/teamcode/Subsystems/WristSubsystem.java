@@ -13,6 +13,11 @@ public class WristSubsystem extends SubsystemBase {
         wR = hMap.get(Servo.class,"wR");
     }
 
+    public void position(double pos) {
+        wL.setPosition(pos);
+        wR.setPosition(1 - pos);
+    }
+
     public void wristUp(){
         wL.setPosition(0.25);
         wR.setPosition(0.75);

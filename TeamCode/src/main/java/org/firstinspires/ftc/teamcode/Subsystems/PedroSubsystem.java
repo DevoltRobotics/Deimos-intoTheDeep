@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class PedroSubsystem extends SubsystemBase {
 
-    Follower follower;
+    public final Follower follower;
 
     public static Pose EndPose = new Pose();
 

@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.Config.DrivePos.samplePickup3Pose;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.sampleScorePose;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.samplesStartPose;
 
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
@@ -20,6 +21,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Commands.Arm.ArmEncoderResetCmd;
 import org.firstinspires.ftc.teamcode.Commands.Arm.ArmToPoseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Claw.ClawCloseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Compund.ScoreCMD;
@@ -38,8 +40,10 @@ public class Samples extends OpModeCommand {
 
 
     private Path scorePreload, park;
-    private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3,pickcenter;
+    private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, pickcenter;
 
+
+    Command autoCommand;
 
     public void createPaths() {
         scorePreload = new Path(new BezierLine(new Point(samplesStartPose), new Point(sampleScorePose)));
@@ -87,12 +91,16 @@ public class Samples extends OpModeCommand {
     @Override
     public void initialize() {
         follower.setStartingPose(samplesStartPose);
-        vision.init();
+
 
         createPaths();
 
+        new ArmEncoderResetCmd(armSubsystem).schedule();
 
-        schedule(
+        new ClawCloseCMD(clawSubsystem).schedule();
+        new ElevSARCMD(elevatorSubsystem).schedule();
+
+        autoCommand =
                 new ParallelCommandGroup(
                         new ClawCloseCMD(clawSubsystem),
                         new ElevSARCMD(elevatorSubsystem),
@@ -103,10 +111,10 @@ public class Samples extends OpModeCommand {
 
                                 new ParallelDeadlineGroup(
                                         pedroSubsystem.followPathCmd(scorePreload),
+                                        new wristDownCMD(wristSubsystem),
                                         new ExtendCMD(extendoSubsystem),
                                         new intakeInCMD(intakeSubsystem),
-                                        new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem)
-
+                                        new ScoreCMD(elevatorSubsystem, armSubsystem, clawSubsystem)
 
 
                                 )).andThen(
@@ -116,7 +124,6 @@ public class Samples extends OpModeCommand {
 
                                         new ParallelDeadlineGroup(
                                                 pedroSubsystem.followPathCmd(grabPickup1),
-                                        new wristDownCMD(wristSubsystem),
                                                 new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
                                                 new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
                                         ),
@@ -125,63 +132,67 @@ public class Samples extends OpModeCommand {
                                 )
                         ).andThen(new ParallelCommandGroup(
                                 pedroSubsystem.followPathCmd(scorePickup1),
-                                new InstantCommand(()->new intakeKeepCMD(intakeSubsystem)
-                                        ),
-                                new SequentialCommandGroup(
-                                        new TransferCMD(extendoSubsystem,wristSubsystem,clawSubsystem),
-                                        new WaitCommand(100),
-                                        new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem),
-                                        new ExtendCMD(extendoSubsystem)
+                                new InstantCommand(() -> new intakeKeepCMD(intakeSubsystem)
                                 ),
+                                new SequentialCommandGroup(
+                                        new TransferCMD(extendoSubsystem, wristSubsystem, clawSubsystem),
+                                        new WaitCommand(100),
+                                        new ScoreCMD(elevatorSubsystem, armSubsystem, clawSubsystem),
+                                        new ExtendCMD(extendoSubsystem),
+                                        new wristDownCMD(wristSubsystem)
+
+                                        ),
                                 new WaitCommand(1200)
                         )).andThen(
                                 new SequentialCommandGroup(
-                                        new InstantCommand(()-> follower.setMaxPower(0.65)),
-                                new ParallelDeadlineGroup(
-                                        pedroSubsystem.followPathCmd(grabPickup2),
-                                        new wristDownCMD(wristSubsystem),
-                                        new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
-                                        new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
-                                ),
-                                new InstantCommand(()-> follower.setMaxPower(1))
+                                        new InstantCommand(() -> follower.setMaxPower(0.65)),
+                                        new ParallelDeadlineGroup(
+                                                pedroSubsystem.followPathCmd(grabPickup2),
+                                                new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
+                                                new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
+                                        ),
+                                        new InstantCommand(() -> follower.setMaxPower(1))
 
                                 )).andThen(new ParallelCommandGroup(
                                 pedroSubsystem.followPathCmd(scorePickup2),
-                               new SequentialCommandGroup(
-                                  new TransferCMD(extendoSubsystem,wristSubsystem,clawSubsystem),
-                                 new WaitCommand(100),
-                                 new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem),
-                                       new ExtendCMD(extendoSubsystem)
-                                  ),
-                                      new WaitCommand(2000)
+                                new SequentialCommandGroup(
+                                        new TransferCMD(extendoSubsystem, wristSubsystem, clawSubsystem),
+                                        new WaitCommand(100),
+                                        new ScoreCMD(elevatorSubsystem, armSubsystem, clawSubsystem),
+                                        new ExtendCMD(extendoSubsystem)
+                                ),
+                                new WaitCommand(1800)
 
                         )).andThen(
                                 new SequentialCommandGroup(
-                                new InstantCommand(()-> follower.setMaxPower(0.65)),
-                                new ParallelDeadlineGroup(
-                                 new WaitCommand(2000),
-                                pedroSubsystem.followPathCmd(grabPickup3),
-                                        new wristDownCMD(wristSubsystem),
-                                        new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
-                                        new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
+                                        new InstantCommand(() -> follower.setMaxPower(0.65)),
+                                        new ParallelDeadlineGroup(
+                                                new WaitCommand(2000),
+                                                pedroSubsystem.followPathCmd(grabPickup3),
+                                                new wristDownCMD(wristSubsystem),
+                                                new ElevToPoseCMD(elevatorSubsystem, elevatorSubsystem.TransferPos),
+                                                new ArmToPoseCMD(armSubsystem, armSubsystem.TransferPos)
 
-                        ),
-                          new InstantCommand(()-> follower.setMaxPower(1))
+                                        ),
+                                        new InstantCommand(() -> follower.setMaxPower(1))
                                 )).andThen(new ParallelCommandGroup(
                                 pedroSubsystem.followPathCmd(scorePickup3),
                                 new SequentialCommandGroup(
-                                        new TransferCMD(extendoSubsystem,wristSubsystem,clawSubsystem),
+                                        new TransferCMD(extendoSubsystem, wristSubsystem, clawSubsystem),
                                         new WaitCommand(100),
-                                        new ScoreCMD(elevatorSubsystem,armSubsystem,clawSubsystem),
+                                        new ScoreCMD(elevatorSubsystem, armSubsystem, clawSubsystem),
                                         new ExtendCMD(extendoSubsystem)
                                 ),
-                                new WaitCommand(2000)
+                                new WaitCommand(1800)
 
 
-                        )).andThen(pedroSubsystem.followPathCmd(park)).andThen(
-                        )
 
-        );
+                        )).andThen(pedroSubsystem.followPathCmd(park));
+    }
+
+    @Override
+    public void start() {
+        autoCommand.schedule();
     }
 }
 

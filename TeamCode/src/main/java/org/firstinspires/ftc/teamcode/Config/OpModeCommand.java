@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Config;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.Subsystem;
@@ -58,6 +60,8 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
 
         vision = new CrosshairVision(hardwareMap.get(WebcamName.class, "Webcam 1"));

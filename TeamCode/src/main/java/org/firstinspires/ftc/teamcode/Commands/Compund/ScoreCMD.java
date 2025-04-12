@@ -20,7 +20,7 @@ public class ScoreCMD extends ParallelDeadlineGroup {
                         new ElevToPoseCMD(elevatorSubsystem, ElevatorSubsystem.ScorePos),
                         new ArmToPoseCMD(armSubsystem, armSubsystem.ScorePos),
                         new SequentialCommandGroup(
-                                new WaitCommand((1000)),
+                                new WaitCommand((800)),
                                 new ClawOpenCMD(clawSubsystem)
                         )
 

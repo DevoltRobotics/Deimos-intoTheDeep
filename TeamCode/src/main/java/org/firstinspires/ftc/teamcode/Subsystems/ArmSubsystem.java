@@ -29,7 +29,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public double brazoTargetPos;
 
-    public int ScorePos = 265;
+    public int ScorePos = 280;
     public int TransferPos = 0;
 
     public ArmSubsystem(HardwareMap hMap) {

@@ -137,4 +137,23 @@ public class CrosshairVision {
         return null;
     }
 
+    public Point toSimplePoint(double offsetX, double offsetY) {
+        RotatedRect rect = getLastRects();
+
+        if(rect == null) {
+            return null;
+        }
+
+        double centerX = 320 / 2f;
+        double deltaX = centerX - rect.center.x;
+
+        double centerY = 0;
+        double deltaY = centerY - rect.center.y;
+
+        double width = Math.max(rect.size.width, rect.size.height);
+
+        double factor = CrosshairVision.objectWidth / width;
+        return new Point((deltaX * factor) + offsetX, (deltaY * factor) + offsetY);
+    }
+
 }

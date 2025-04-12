@@ -25,6 +25,8 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Commands.Arm.ArmEncoderResetCmd;
+import org.firstinspires.ftc.teamcode.Commands.Claw.ClawCloseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Claw.ClawOpenCMD;
 import org.firstinspires.ftc.teamcode.Commands.Elev.ElevSARCMD;
 import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPoseCMD;
@@ -89,6 +91,8 @@ public class Specimen extends OpModeCommand {
 
         new RedentorCloseCMD(redentorSubsystem).schedule();
 
+        new ArmEncoderResetCmd(armSubsystem).schedule();
+        new ElevSARCMD(elevatorSubsystem).schedule();
 
         autoCommand =
                 new ParallelCommandGroup(
