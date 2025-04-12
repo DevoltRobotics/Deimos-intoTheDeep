@@ -159,7 +159,7 @@ public class Specimen extends OpModeCommand {
 
                         .andThen(
                                 new ParallelCommandGroup(
-                                        new ElevToPoseCMD(elevatorSubsystem,990),
+                                        new ElevToPoseCMD(elevatorSubsystem,930),
                                         new ParallelDeadlineGroup(
                                                 new WaitCommand(1000),
                                                 new RedentorOpenCMD(redentorSubsystem))))
@@ -169,14 +169,11 @@ public class Specimen extends OpModeCommand {
                                 )
                         )
 
-                        .andThen(
-                                new ParallelDeadlineGroup(
-                                        pedroSubsystem.followPathCmd(grabSpecimen),
-                                        new RedentorCloseCMD(redentorSubsystem)))
-
+                        .andThen(pedroSubsystem.followPathCmd(grabSpecimen))
                         .andThen(
                                 new ParallelDeadlineGroup(
                                         pedroSubsystem.followPathCmd(scoreSpecimen),
+                                        new RedentorCloseCMD(redentorSubsystem),
                                         new ElevToPoseCMD(elevatorSubsystem,1500)))
 
                         .andThen(
