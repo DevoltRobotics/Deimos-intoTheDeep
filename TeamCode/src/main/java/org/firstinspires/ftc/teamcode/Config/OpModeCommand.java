@@ -6,14 +6,17 @@ import com.arcrobotics.ftclib.command.Subsystem;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ElevatorSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.PedroSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.PusherSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.RedentorSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.WristSubsystem;
+import org.firstinspires.ftc.teamcode.Vision.CrosshairVision;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
@@ -29,6 +32,9 @@ public abstract class OpModeCommand extends OpMode {
     public ArmSubsystem armSubsystem;
     public WristSubsystem wristSubsystem;
     public RedentorSubsystem redentorSubsystem;
+    public PusherSubsystem pusherSubsystem;
+
+    public CrosshairVision vision;
 
     //reinicia la lista de comandos
     public void reset() {
@@ -54,6 +60,8 @@ public abstract class OpModeCommand extends OpMode {
     public void init() {
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
 
+        vision = new CrosshairVision(hardwareMap.get(WebcamName.class, "Webcam 1"));
+
         register(
                 pedroSubsystem = new PedroSubsystem(follower),
                 extendoSubsystem = new ExtendoSubsystem(hardwareMap),
@@ -62,10 +70,16 @@ public abstract class OpModeCommand extends OpMode {
                 intakeSubsystem = new IntakeSubsystem(hardwareMap),
                 armSubsystem = new ArmSubsystem(hardwareMap),
                 wristSubsystem = new WristSubsystem(hardwareMap),
-                redentorSubsystem = new RedentorSubsystem(hardwareMap)
+                redentorSubsystem = new RedentorSubsystem(hardwareMap),
+                pusherSubsystem = new PusherSubsystem(hardwareMap)
         );
 
         initialize();
+    }
+
+    @Override
+    public void init_loop() {
+        CommandScheduler.getInstance().run();
     }
 
     @Override

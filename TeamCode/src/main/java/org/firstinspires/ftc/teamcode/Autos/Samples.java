@@ -38,7 +38,7 @@ public class Samples extends OpModeCommand {
 
 
     private Path scorePreload, park;
-    private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
+    private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3,pickcenter;
 
 
     public void createPaths() {
@@ -76,6 +76,8 @@ public class Samples extends OpModeCommand {
                 .setLinearHeadingInterpolation(samplePickup3Pose.getHeading(), sampleScorePose.getHeading())
                 .build();
 
+        //pickcenter = follower.holdPoint();
+
         park = new Path(new BezierCurve(new Point(sampleScorePose), /* Control Point */ new Point(sampleParkControlPose), new Point(sampleParkPose)));
         park.setLinearHeadingInterpolation(sampleScorePose.getHeading(), sampleParkPose.getHeading());
 
@@ -85,6 +87,7 @@ public class Samples extends OpModeCommand {
     @Override
     public void initialize() {
         follower.setStartingPose(samplesStartPose);
+        vision.init();
 
         createPaths();
 
@@ -175,7 +178,8 @@ public class Samples extends OpModeCommand {
                                 new WaitCommand(2000)
 
 
-                        )).andThen(pedroSubsystem.followPathCmd(park))
+                        )).andThen(pedroSubsystem.followPathCmd(park)).andThen(
+                        )
 
         );
     }

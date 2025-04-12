@@ -29,6 +29,8 @@ import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPosTOp;
 import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPoseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Extendo.ExtendCMD;
 import org.firstinspires.ftc.teamcode.Commands.Extendo.RetractCMD;
+import org.firstinspires.ftc.teamcode.Commands.Redentor.RedentorCloseCMD;
+import org.firstinspires.ftc.teamcode.Commands.Redentor.RedentorOpenCMD;
 import org.firstinspires.ftc.teamcode.Commands.intake.intakeInCMD;
 import org.firstinspires.ftc.teamcode.Commands.intake.intakeKeepCMD;
 import org.firstinspires.ftc.teamcode.Commands.wrist.wristDownCMD;
@@ -36,14 +38,13 @@ import org.firstinspires.ftc.teamcode.Commands.wrist.wristUpCMD;
 import org.firstinspires.ftc.teamcode.Config.OpModeCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.intake.intakeOutCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.RedentorSubsystem;
 
 @TeleOp(name = "Teleop", group = "##")
 public class Teleop extends OpModeCommand {
 
     GamepadEx Chasis;
     GamepadEx Garra;
-
-
 
     @Override
     public void initialize() {
@@ -55,6 +56,22 @@ public class Teleop extends OpModeCommand {
         Button ScorePos = new GamepadButton(
           Chasis, GamepadKeys.Button.DPAD_UP
         );
+
+        Button Resetcentric = new GamepadButton(
+                Chasis,GamepadKeys.Button.RIGHT_BUMPER
+        );
+
+        Button OpenRedentor = new GamepadButton(Garra, GamepadKeys.Button.LEFT_STICK_BUTTON);
+        Button CloseRedentor = new GamepadButton(Garra, GamepadKeys.Button.RIGHT_STICK_BUTTON);
+
+        OpenRedentor.whenPressed(new RedentorOpenCMD(redentorSubsystem));
+        CloseRedentor.whenPressed(new RedentorCloseCMD(redentorSubsystem));
+
+        Resetcentric.whenPressed(new InstantCommand(()->
+           //follower.setStartingPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), 0)),
+                follower.resetOffset()
+      ));
+
         ScorePos.whenPressed(new InstantCommand(() -> {
                  PathChain path = follower.pathBuilder()
                     .addPath(new BezierLine(new Point(follower.getPose()), new Point(sampleScorePose)))
@@ -70,7 +87,6 @@ public class Teleop extends OpModeCommand {
 
         CancelPath.whenPressed(new InstantCommand(() -> {
             CommandScheduler.getInstance().cancel(CommandScheduler.getInstance().requiring(pedroSubsystem));
-
         }));
 
         CommandScheduler.getInstance().setDefaultCommand(intakeSubsystem,new intakeKeepCMD(intakeSubsystem));
@@ -114,6 +130,7 @@ public class Teleop extends OpModeCommand {
                new ElevToPoseCMD(elevatorSubsystem,elevatorSubsystem.ScorePos),
                 new ArmToPoseCMD(armSubsystem, armSubsystem.ScorePos)
         ));
+
         Button TransferG = new GamepadButton(
                 Garra,GamepadKeys.Button.DPAD_DOWN
         );

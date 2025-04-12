@@ -14,11 +14,11 @@ public class PusherSubsystem extends SubsystemBase {
         Pusher = hMap.get(Servo.class,"cola");
     }
 
-    public void push(){
-        Pusher.setPosition(1);
+    public void save(){
+        Pusher.setPosition(0.7);
     }
 
-    public void save(){
+    public void push(){
         Pusher.setPosition(0);
     }
 

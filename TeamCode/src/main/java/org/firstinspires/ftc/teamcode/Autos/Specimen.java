@@ -13,18 +13,29 @@ import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenPark;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenScorePose;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenStartPose;
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Commands.Claw.ClawOpenCMD;
+import org.firstinspires.ftc.teamcode.Commands.Elev.ElevSARCMD;
 import org.firstinspires.ftc.teamcode.Commands.Elev.ElevToPoseCMD;
+import org.firstinspires.ftc.teamcode.Commands.Extendo.RetractCMD;
+import org.firstinspires.ftc.teamcode.Commands.Pusher.PushCMD;
+import org.firstinspires.ftc.teamcode.Commands.Pusher.SavePusherCMD;
 import org.firstinspires.ftc.teamcode.Commands.Redentor.RedentorCloseCMD;
 import org.firstinspires.ftc.teamcode.Commands.Redentor.RedentorOpenCMD;
+import org.firstinspires.ftc.teamcode.Commands.wrist.wristUpCMD;
 import org.firstinspires.ftc.teamcode.Config.OpModeCommand;
+import org.firstinspires.ftc.teamcode.Subsystems.PusherSubsystem;
 
 @Autonomous(name = "Specimen", group = "##")
 public class Specimen extends OpModeCommand {
@@ -32,6 +43,7 @@ public class Specimen extends OpModeCommand {
 
     private Path scorePreload, scoreSpecimen, park, grabSpecimen, sample1, sample2, sample3, leaveSample1, leaveSample2, leaveSample3, scoreFromSample3;
 
+    Command autoCommand;
 
     public void createPaths() {
         scorePreload = new Path(new BezierLine(new Point(specimenStartPose), new Point(specimenScorePose)));
@@ -75,28 +87,135 @@ public class Specimen extends OpModeCommand {
 
         createPaths();
 
-        schedule(
+        new RedentorCloseCMD(redentorSubsystem).schedule();
 
-                new RedentorCloseCMD(redentorSubsystem),
-                        new ParallelDeadlineGroup(
-                                pedroSubsystem.followPathCmd(scorePreload),
-                                new ElevToPoseCMD(elevatorSubsystem, 1500)
-                        ),
-                new RedentorOpenCMD(redentorSubsystem)
-                        .andThen(pedroSubsystem.followPathCmd(sample1))
-                        .andThen(pedroSubsystem.followPathCmd(leaveSample1))
-                        .andThen(pedroSubsystem.followPathCmd(sample2))
-                        .andThen(pedroSubsystem.followPathCmd(leaveSample2))
-                        .andThen(pedroSubsystem.followPathCmd(sample3))
-                        .andThen(pedroSubsystem.followPathCmd(leaveSample3))
-                        .andThen(pedroSubsystem.followPathCmd(scoreFromSample3))
-                        .andThen(pedroSubsystem.followPathCmd(grabSpecimen))
-                        .andThen(pedroSubsystem.followPathCmd(scoreSpecimen))
-                        .andThen(pedroSubsystem.followPathCmd(grabSpecimen))
-                        .andThen(pedroSubsystem.followPathCmd(scoreSpecimen))
-                        .andThen(pedroSubsystem.followPathCmd(grabSpecimen))
-                        .andThen(pedroSubsystem.followPathCmd(scoreSpecimen))
-                        .andThen(pedroSubsystem.followPathCmd(park))
-        );
+
+        autoCommand =
+                new ParallelCommandGroup(
+                        new wristUpCMD(wristSubsystem),
+                        new RetractCMD(extendoSubsystem),
+                        new ElevSARCMD(elevatorSubsystem)
+                        )
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                    pedroSubsystem.followPathCmd(scorePreload),
+                                    new ElevToPoseCMD(elevatorSubsystem, 1500)))
+                        .andThen(
+                                new ParallelCommandGroup(
+                                    new ElevToPoseCMD(elevatorSubsystem,990),
+                                    new ParallelDeadlineGroup(
+                                            new WaitCommand(500),
+                                            new RedentorOpenCMD(redentorSubsystem)))
+                        )
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(sample1),
+                                        new ElevToPoseCMD(elevatorSubsystem,0)))
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                pedroSubsystem.followPathCmd(leaveSample1),
+                                new PushCMD(pusherSubsystem))
+                        )
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                    pedroSubsystem.followPathCmd(sample2),
+                                        new SavePusherCMD(pusherSubsystem)
+                                )
+                        )
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(leaveSample2),
+                                        new PushCMD(pusherSubsystem))
+                        )
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                    pedroSubsystem.followPathCmd(sample3),
+                                        new SavePusherCMD(pusherSubsystem)
+                                )
+                        )
+
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(leaveSample3),
+                                        new ElevToPoseCMD(elevatorSubsystem,75)
+                                )
+                        )
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                pedroSubsystem.followPathCmd(grabSpecimen),
+                                new RedentorCloseCMD(redentorSubsystem)))
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(scoreSpecimen),
+                                        new ElevToPoseCMD(elevatorSubsystem,1500)))
+
+                        .andThen(
+                                new ParallelCommandGroup(
+                                        new ElevToPoseCMD(elevatorSubsystem,990),
+                                        new ParallelDeadlineGroup(
+                                                new WaitCommand(1000),
+                                                new RedentorOpenCMD(redentorSubsystem))))
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        new ElevToPoseCMD(elevatorSubsystem,75)
+                                )
+                        )
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(grabSpecimen),
+                                        new RedentorCloseCMD(redentorSubsystem)))
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(scoreSpecimen),
+                                        new ElevToPoseCMD(elevatorSubsystem,1500)))
+
+                        .andThen(
+                                new ParallelCommandGroup(
+                                        new ElevToPoseCMD(elevatorSubsystem,990),
+                                        new ParallelDeadlineGroup(
+                                                new WaitCommand(1000),
+                                                new RedentorOpenCMD(redentorSubsystem))))
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        new ElevToPoseCMD(elevatorSubsystem,75)))
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(grabSpecimen),
+                                        new RedentorCloseCMD(redentorSubsystem)))
+
+
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        pedroSubsystem.followPathCmd(scoreSpecimen),
+                                        new ElevToPoseCMD(elevatorSubsystem,1500)))
+                        .andThen(
+                                new ParallelCommandGroup(
+                                        new ElevToPoseCMD(elevatorSubsystem,990),
+                                        new ParallelDeadlineGroup(
+                                                new WaitCommand(1000),
+                                                new RedentorOpenCMD(redentorSubsystem))))
+
+                        .andThen(
+                                new ParallelDeadlineGroup(
+                                        new ElevToPoseCMD(elevatorSubsystem,0)))
+        ;
+    }
+
+    @Override
+    public void start() {
+        autoCommand.schedule();
     }
 }

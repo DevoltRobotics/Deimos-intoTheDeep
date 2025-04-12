@@ -23,7 +23,7 @@ public class ArmSubsystem extends SubsystemBase {
     public double BrazoP = 0;
     public double lastBrazoP;
 
-    public double brazoPRelative = -15;
+    public static double brazoPRelative = -15;
 
     public double ticks;
 
