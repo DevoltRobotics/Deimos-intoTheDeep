@@ -12,11 +12,11 @@ public class Constants {
     public static double ScaleFactor = 80;
 
     public static int xPixels = 320;
-    public static int xFov = 20;
+    public static int xFov = 120;
     public static double xDegreesPerPixel = (double) (xPixels) / (xFov);
 
     public static int yPixels = 240;
-    public static int yFov = 10;
+    public static int yFov = 30;
 
     public static double hCamera = 5.1;
     public static double intakeAngle = 30.0; // en grados;
