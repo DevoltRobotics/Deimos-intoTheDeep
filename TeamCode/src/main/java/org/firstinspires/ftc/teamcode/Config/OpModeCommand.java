@@ -6,11 +6,18 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.Subsystem;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ClawSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Constants;
 import org.firstinspires.ftc.teamcode.Subsystems.ElevatorSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ExtendoSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.IntakeSubsystem;
@@ -37,6 +44,8 @@ public abstract class OpModeCommand extends OpMode {
     public PusherSubsystem pusherSubsystem;
 
     public CrosshairVision vision;
+
+    public IMU imu;
 
     //reinicia la lista de comandos
     public void reset() {
@@ -67,7 +76,12 @@ public abstract class OpModeCommand extends OpMode {
         vision = new CrosshairVision(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         register(
-                pedroSubsystem = new PedroSubsystem(follower),
+                pedroSubsystem = new PedroSubsystem(follower, vision, telemetry,
+                        hardwareMap.get(DcMotorEx.class, FollowerConstants.leftFrontMotorName),
+                        hardwareMap.get(DcMotorEx.class, FollowerConstants.leftRearMotorName),
+                        hardwareMap.get(DcMotorEx.class, FollowerConstants.rightRearMotorName),
+                        hardwareMap.get(DcMotorEx.class, FollowerConstants.rightFrontMotorName)
+                ),
                 extendoSubsystem = new ExtendoSubsystem(hardwareMap),
                 clawSubsystem = new ClawSubsystem(hardwareMap),
                 elevatorSubsystem = new ElevatorSubsystem(hardwareMap),
@@ -78,7 +92,17 @@ public abstract class OpModeCommand extends OpMode {
                 pusherSubsystem = new PusherSubsystem(hardwareMap)
         );
 
+        imu = hardwareMap.get(IMU.class, "imu");
+
         initialize();
+    }
+
+    public void initImu() {
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+        imu.initialize(parameters);
+        imu.resetYaw();
     }
 
     @Override
