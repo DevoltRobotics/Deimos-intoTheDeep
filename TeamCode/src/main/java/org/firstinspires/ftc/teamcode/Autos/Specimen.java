@@ -6,6 +6,8 @@ import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenGoToSample2
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenGoToSample3;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenGoToSample3Control;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenGrabSpecimen;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenGrabSpecimenControl1;
+import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenGrabSpecimenControl2;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenLeaveSample1;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenLeaveSample2;
 import static org.firstinspires.ftc.teamcode.Config.DrivePos.specimenLeaveSample3;
@@ -72,7 +74,7 @@ public class Specimen extends OpModeCommand {
         scoreFromSample3 = new Path(new BezierLine(new Point(specimenLeaveSample3), new Point(specimenScorePose)));
         scoreFromSample3.setLinearHeadingInterpolation(specimenLeaveSample3.getHeading(), specimenScorePose.getHeading());
 
-        grabSpecimen = new Path(new BezierLine(new Point(specimenScorePose), new Point(specimenGrabSpecimen)));
+        grabSpecimen = new Path(new BezierCurve(new Point(specimenScorePose),new Point(specimenGrabSpecimenControl1), new Point(specimenGrabSpecimenControl2), new Point(specimenGrabSpecimen)));
         grabSpecimen.setLinearHeadingInterpolation(specimenScorePose.getHeading(), specimenGrabSpecimen.getHeading());
 
         scoreSpecimen = new Path(new BezierLine(new Point(specimenGrabSpecimen), new Point(specimenScorePose)));

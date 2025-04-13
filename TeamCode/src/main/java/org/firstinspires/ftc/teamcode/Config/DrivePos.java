@@ -49,6 +49,8 @@ public class DrivePos {
     public static Pose specimenLeaveSample3 = new Pose(11.5, 8, Math.toRadians(0));
 
     public static Pose specimenGrabSpecimen = new Pose(11.5, 36, Math.toRadians(0));
+    public static Pose specimenGrabSpecimenControl1 = new Pose(14, 56);
+    public static Pose specimenGrabSpecimenControl2 = new Pose(70, 27);
 
     public static Pose specimenPark = new Pose(16, 47, Math.toRadians(-135));
 
